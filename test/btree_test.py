@@ -43,7 +43,7 @@ class BtreeNodesTest(unittest.TestCase):
         1.
         """
         testBtree = BtreeNode()
-        testBtree.seperators = []
+        testBtree.keyValuePairs = []
         assert testBtree.isEmpty() == True
 
 

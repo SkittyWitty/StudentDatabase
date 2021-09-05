@@ -1,4 +1,4 @@
-class BtreeSubNodeData:
+class BtreeNodePartition:
     """
     Contains the key, value pair of one partion of a BTree's node
     """
@@ -37,15 +37,12 @@ class BtreeNode:
     """
     def __init__(self, isRoot=False):
         self.__order = 3
-        self.__maxSeperators = self.__order - 1
+        self.__maxSubNodes = self.__order - 1
 
         self.children = [None, None, None]
         self.parent = None
-        self.keyValuePairs = [None, None]
-        self.seperators = [None, None] # seperation values to divide the node's subtrees
-        self.data = [] # data objects that correspond to the keys
-        
-        # values must be tuples so they are not edited while in the Sorted Tree
+        self.keyValuePairs = [None, None] # partitions of the node
+
         self.isRoot = isRoot # Allowed to have less than the required 
 
     def traverse(self):
@@ -57,7 +54,7 @@ class BtreeNode:
                 self.children[i].traverse() # traverse all subtrees
 
             # After getting to the bottom of the search print the keys
-            print(self.seperators)
+            print(self.keyValuePairs)
         
         # Print subtree of last child
         if(self.isEmpty() == False):
@@ -69,10 +66,10 @@ class BtreeNode:
     
     def isEmpty(self):
         """
-        When a node is empty with no seperators it is considered a leaf node.
+        When a node is empty with no keys it is considered a leaf node.
         Get the status of current Node
         """
-        if(self.seperators == []):
+        if(self.keyValuePairs == []):
             return True
         else:
             return False
@@ -91,41 +88,42 @@ class BtreeNode:
         Inserts a seperation value into a node ignoring the order restriction.
         """
     
-    def insertData(self, seperator, data):
+    def insertData(self, partition):
         print("Meh")
 
     def isFull(self):
-        return len(self.seperators) == self.__maxSeperators
+        return len(self.keyValuePairs) == self.__maxSubNodes
 
-    def setSeperatorsInOrder(self, seperator, data):
+    def setPartitionsInOrder(self, partition):
         """
         Orders the seperators in the node lexicographically and places them in the 
         """
-        if(self.seperators[0] < seperator):
+        incomingkey = partition.getKey()
+        existingPartitionsKey = self.keyValuePairs[0].getKey()
+        if(existingPartitionsKey < incomingkey):
             # incoming seperator is smaller
-            self.seperators[1] = self.seperators[0]
-            self.seperators[0] = seperator
+            self.keyValuePairs[1] = self.keyValuePairs[0]
+            self.keyValuePairs[0] = partition
         else:
              # incoming seperator is bigger
-            self.seperators[1] = seperator
+            self.keyValuePairs[1] = partition
 
     
-    def insert(self, seperator, data):
+    def insert(self, partition):
         """
         Determines where data should go based on given seperator values. 
         Traverses and rebalances as it walks down to the level of leaf nodes. 
         """
         if self.isEmpty():
             # Node is empty
-            self.seperators[0] = seperator
-            self.data = data
+            self.keyValuePairs[0] = partition
         elif self.isFull(): 
             # Node is full
             self.splitNode()
             # Insert data into Node, use seperator values to determine order/if reordering if needed
         else: 
             # Node has room 
-            self.setSeperatorsInOrder(seperator, data)
+            self.setPartitionsInOrder(partition)
 
 
 class Btree:
@@ -139,14 +137,14 @@ class Btree:
         self.__order = 3    # specifies max number of children per node 
                             # (order - 1) = max number of data points per node
 
-    def insert(self, seperator, data):
+    def insert(self, partition):
         """
         """
         if not self.__root:
             # Currently no root node add one
             self.__root = BtreeNode(True)
         
-        self.__root.insert(seperator, data) # start at top of tree and adjust to add new value
+        self.__root.insert(partition) # start at top of tree and adjust to add new value
 
         if not self.__root.isRoot: # root might have changed change
             self.__root = self.__root.parent

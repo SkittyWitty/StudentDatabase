@@ -19,4 +19,8 @@ class studentClassTests(unittest.TestCase):
         assert testStudent.getName() == studentName
         assert testStudent.getGpa() == 4.0
 
+        # Still able to access from the BtreeNodePartition
+        assert testStudent.getKey() == studentName
+        assert testStudent.getValue() == (4.0, "123")
+
     
