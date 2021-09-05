@@ -1,8 +1,9 @@
 {
     "python.testing.pytestArgs": [
-        "."
+        "test",
+        "*_Test.py"
     ],
     "python.testing.unittestEnabled": false,
-    "python.testing.nosetestsEnabled": false,
     "python.testing.pytestEnabled": true
+
 }

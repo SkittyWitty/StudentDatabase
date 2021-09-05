@@ -1,37 +1,73 @@
+class BtreeSubNodeData:
+    """
+    Contains the key, value pair of one partion of a BTree's node
+    """
+    def __init__(self, key, value):
+        self.key = key
+        self.value = value
+
+    def getKey(self):
+        """
+        public accessor for the key
+        """
+        return self.key
+
+    def getValue(self):
+        """
+        public accessor for the value
+        """
+        return self.value
+
+    def __setKey(self, key):
+        """
+        private method for setting the key
+        """
+        self.key = key
+
+    def __setValue(self, value):
+        """
+        private method for setting the value
+        """
+        self.value = value
+
+
 class BtreeNode:
     """
     Node in a B-tree of order 3. Meaning that 2 data items will be allowed in the node.
     """
-    def __init__(self, leaf):
+    def __init__(self, isRoot=False):
         self.__order = 3
+        self.__maxSeperators = self.__order - 1
 
-        self.childern = []
-        self.seperators = [] # seperation values to divide the node's subtrees
+        self.children = [None, None, None]
+        self.parent = None
+        self.keyValuePairs = [None, None]
+        self.seperators = [None, None] # seperation values to divide the node's subtrees
         self.data = [] # data objects that correspond to the keys
         
         # values must be tuples so they are not edited while in the Sorted Tree
-        self.isRoot = False # Allowed to have less than the required 
+        self.isRoot = isRoot # Allowed to have less than the required 
 
     def traverse(self):
         """
         Look through the data items in the node
         """
         for i in range(self.__order - 1):
-            if(self.isLeaf() == False): # not empty visit children
-                self.childern[i].traverse() # traverse all subtrees
+            if(self.isEmpty() == False): # not empty visit children
+                self.children[i].traverse() # traverse all subtrees
 
             # After getting to the bottom of the search print the keys
             print(self.seperators)
         
         # Print subtree of last child
-        if(self.isLeaf == False):
+        if(self.isEmpty() == False):
             self.children[self.__order].traverse()          
     
     def search(k):
         """
         """
     
-    def isLeaf(self):
+    def isEmpty(self):
         """
         When a node is empty with no seperators it is considered a leaf node.
         Get the status of current Node
@@ -41,16 +77,79 @@ class BtreeNode:
         else:
             return False
 
+    def splitNode(self):
+        """
+        Helper function to insert. 
+        Splits the seperation values from the given node into new nodes.
+        Will also shift the data to the far left of the node to be availble to new data.
+        """
+        # Create new node
+        # decides what values 
+
+    def insertSeperation(self):
+        """
+        Inserts a seperation value into a node ignoring the order restriction.
+        """
+    
+    def insertData(self, seperator, data):
+        print("Meh")
+
+    def isFull(self):
+        return len(self.seperators) == self.__maxSeperators
+
+    def setSeperatorsInOrder(self, seperator, data):
+        """
+        Orders the seperators in the node lexicographically and places them in the 
+        """
+        if(self.seperators[0] < seperator):
+            # incoming seperator is smaller
+            self.seperators[1] = self.seperators[0]
+            self.seperators[0] = seperator
+        else:
+             # incoming seperator is bigger
+            self.seperators[1] = seperator
+
+    
+    def insert(self, seperator, data):
+        """
+        Determines where data should go based on given seperator values. 
+        Traverses and rebalances as it walks down to the level of leaf nodes. 
+        """
+        if self.isEmpty():
+            # Node is empty
+            self.seperators[0] = seperator
+            self.data = data
+        elif self.isFull(): 
+            # Node is full
+            self.splitNode()
+            # Insert data into Node, use seperator values to determine order/if reordering if needed
+        else: 
+            # Node has room 
+            self.setSeperatorsInOrder(seperator, data)
+
+
 class Btree:
     """
     B-Tree with an order of 3. Sorts in lexicographical order
     """
-    ORDER = 3 # specifies max number of children per node 
-              # (order - 1) = max number of data points per node
-
     def __init__(self):
-        self.__root  = BtreeNode() # entry point into the btree
-        self.__order = 3
+        """
+        """
+        self.__root  = None # entry point into the btree
+        self.__order = 3    # specifies max number of children per node 
+                            # (order - 1) = max number of data points per node
+
+    def insert(self, seperator, data):
+        """
+        """
+        if not self.__root:
+            # Currently no root node add one
+            self.__root = BtreeNode(True)
+        
+        self.__root.insert(seperator, data) # start at top of tree and adjust to add new value
+
+        if not self.__root.isRoot: # root might have changed change
+            self.__root = self.__root.parent
 
     def traverse(self): 
         """
@@ -70,16 +169,8 @@ class Btree:
         else:
             return self.__root.search(k)
 
-    def splitNode(self):
-        """
-        Splits the data from the node. 
-        Will also shift the data to the far left of the node to be availble to new data.
-        """
-    
-    def insert(self):
-        """
-        Insert a new node into the Tree
-        """
+
+
 
 
     

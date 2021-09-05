@@ -2,19 +2,18 @@ from btree import Btree
 from student import Student
 
 class StudentDatabase:
-    def __init__(self, meh):
-        self.meh = meh
+    """
+    Interface for the user to store and access information about students.
+    """
+    def __init__(self):
+        self.database = Btree()
 
-    def addNewStudent(self, name, redId, gpa):
+    def addNewStudent(self, name, gpa):
         """
         Adds a new student into the database (Btree)
         """
-
-    def generateRedId(self):
-        """
-        Generates a unique RedID
-        """
-        return "123"
+        student = Student(name, gpa)
+        self.database.insert(name, student)
 
     def printProbrationStudnets(self):
         """
@@ -33,19 +32,9 @@ class StudentDatabase:
 
 if __name__ == '__main__':
     """
-    The main function called when pacman.py is run
-    from the command line:
-
-    > python pacman.py
-
-    See the usage string for more details.
-
-    > python pacman.py --help
+    The main function called.
     """
-    print ("hi")
-    #args = readCommand( sys.argv[1:] ) # Get game components based on input
-    #//runGames( **args )
+    meh = StudentDatabase()
+    print("Student Database Created")
 
-    # import cProfile
-    # cProfile.run("runGames( **args )")
     pass
