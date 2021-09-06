@@ -105,7 +105,7 @@ class BtreeNodesTest(unittest.TestCase):
 
         assert testNode.keyValuePairs == [testPartition, testPartition2]
 
-    def test_insert_isOverflowing(self):
+    def test_insert_incomingIsGreatest(self):
         """
         Test insert when the node is about to overflow
         """
@@ -115,7 +115,7 @@ class BtreeNodesTest(unittest.TestCase):
         leftValue = 222
         leftPartition = BtreeNodePartition(leftKey, leftValue)
 
-        # Creating what should be the middle note
+        # Creating what should be the middle node
         medianKey = "Bethany"
         medianValue = 111
         medianPartition = BtreeNodePartition(medianKey, medianValue)
@@ -146,25 +146,77 @@ class BtreeNodesTest(unittest.TestCase):
         When there is an overflow and subtrees are full ensure that
         """
 
-    def test_insert_medianIsNotIncoming(self):
+    def test_insert_incomingIsMedian(self):
         """
         When there is an overflow and the incoming partition is not the median
         """
         # Set-up
         # Creating what should be the left child
-        leftKey = "Almond"
+        leftKey = "Eminem"
         leftValue = 222
         leftPartition = BtreeNodePartition(leftKey, leftValue)
 
-        # Creating what should be the middle note
-        medianKey = "Bethany"
+        # Creating what should be the middle node
+        medianKey = "Goose"
         medianValue = 111
         medianPartition = BtreeNodePartition(medianKey, medianValue)
 
         # Creating what should be the right child
-        rightKey = "Chloe"
+        rightKey = "Maverik"
         rightValue = 333
         rightPartition = BtreeNodePartition(rightKey, rightValue)
+
+        # Call
+        startNode = BtreeNode(leftPartition, True) # future left node starts off as the root node
+        startNode.insert(rightPartition) # inserting right partition first
+        startNode.insert(medianPartition)
+
+        # Assert
+        # median Node should become the new root 
+        assert startNode.parent.isRoot == True
+        # startNode should now have median as it's parent
+        assert startNode.parent.keyValuePairs[0].getKey() == medianKey
+
+        # Now that parent is confirmed to be Goose check 
+        newRoot = startNode.parent
+        assert newRoot.children[0].keyValuePairs[0].getKey() == leftKey  # To the left is Eminem
+        assert newRoot.children[1].keyValuePairs[0].getKey() == rightKey # To the right is Maverik
+
+    def test_insert_incomingIsLeastest(self):
+        """
+        Test insert when node is full and incoming parition will be the lesser value
+        out of all current keyValuePairs
+        """
+        # Set-up
+        # Creating what should be the left child
+        leftKey = "Applejack"
+        leftValue = 222
+        leftPartition = BtreeNodePartition(leftKey, leftValue)
+
+        # Creating what should be the middle node
+        medianKey = "Rarity"
+        medianValue = 111
+        medianPartition = BtreeNodePartition(medianKey, medianValue)
+
+        # Creating what should be the right child
+        rightKey = "Yuna"
+        rightValue = 333
+        rightPartition = BtreeNodePartition(rightKey, rightValue)
+
+        # Call
+        startNode = BtreeNode(medianPartition, True) # future left node starts off as the root node
+        startNode.insert(rightPartition) # inserting right partition first
+        startNode.insert(leftPartition)
+
+        # Assert
+        # startNode remains as the root
+        assert startNode.isRoot == True
+        assert startNode.keyValuePairs[0].getKey() == medianKey
+
+        # Now that parent is confirmed to be Goose check 
+        assert startNode.children[0].keyValuePairs[0].getKey() == leftKey  # To the left is Eminem
+        assert startNode.children[1].keyValuePairs[0].getKey() == rightKey # To the right is Maverik
+
 
 
 

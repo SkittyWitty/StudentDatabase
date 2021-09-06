@@ -109,11 +109,11 @@ class BtreeNode:
 
 
     def findIndex(self, incomingPartition):
-        index = 3 # The last possible child 
+        index = 2 # The last possible child 
 
         for i, (partition) in enumerate(self.keyValuePairs):
             # Handle None case
-            if incomingPartition.getKey() < partition.getKey():
+            if partition != None and (incomingPartition.getKey() < partition.getKey()):
                 index = i
                 break
 
@@ -136,20 +136,36 @@ class BtreeNode:
         Will also shift the data to the far left of the node to be availble to new data.
         """
 		# Moves median up
-        self.parent.insert(self.keyValuePairs[self.__medianIndex]) #TODO ASSUMING LAST ELEMENT IS THE MEDIAN
-        self.keyValuePairs[self.__medianIndex]  = None # delete the median 
+        index = self.findIndex(incomingPartition)
+        if index == 2: # greater incoming partition
+            newRightChildPartition = incomingPartition
+            self.parent.insert(self.keyValuePairs[self.__medianIndex]) # middle will be the median
+            self.keyValuePairs[self.__medianIndex] = None # delete the median 
+        elif index == self.__medianIndex: # incoming partion should be the median
+            newRightChildPartition = self.keyValuePairs[1] # greatest value is new right child
+            self.parent.insert(incomingPartition) #incoming partition is median
+            self.keyValuePairs[1] = None
+        else: # smallest element
+            newRightChildPartition = self.keyValuePairs[1] # greatest value is new right child
+            newLeftChild = BtreeNode(incomingPartition) # incoming parition will be a child of current partition
+            self.children[0] = newLeftChild
+            self.keyValuePairs[1] = None
+
+  
         assert self.keyValuePairs[1] == None
         assert self.parent.keyValuePairs[1] == None
         assert len(self.keyValuePairs) < 3
 
         # Create new right child node
-        newRightChild = BtreeNode(incomingPartition) #TODO ASSUMING incoming parition is the right
-        newRightChild.parent = self.parent
+        newRightChild = BtreeNode(newRightChildPartition) 
+        if(self.parent != None):
+            newRightChild.parent = self.parent
         #newRightChild.keyValuePairs[0] = self.keyValuePairs[self.__medianIndex:]
         if(not self.isLeaf()): #if there is existing children give them a new parent
-            newRightChild.children[0] = self.children[self.__medianIndex:] # grab all the children to the left of the median
+            newRightChild.children = self.children[self.__medianIndex:] # grab all the children to the left of the median
             for child in newRightChild.children: # Tell new children who there parents are
-                child.parent = newRightChild
+                if(child != None):
+                    child.parent = newRightChild
             self.keyValuePairs[-1] = self.keyValuePairs[:self.__medianIndex]	#Current node becomes new left node
             self.children[-1] = self.children[:self.__medianIndex]
 
