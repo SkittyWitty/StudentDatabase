@@ -35,13 +35,13 @@ class BtreeNode:
     """
     Node in a B-tree of order 3. Meaning that 2 data items will be allowed in the node.
     """
-    def __init__(self, isRoot=False):
+    def __init__(self, partition=None, isRoot=False):
         self.__order = 3
         self.__maxSubNodes = self.__order - 1
 
         self.children = [None, None, None]
         self.parent = None
-        self.keyValuePairs = [None, None] # partitions of the node
+        self.keyValuePairs = [partition, None] # partitions of the node
 
         self.isRoot = isRoot # Allowed to have less than the required 
 
@@ -66,30 +66,31 @@ class BtreeNode:
     
     def isEmpty(self):
         """
-        When a node is empty with no keys it is considered a leaf node.
-        Get the status of current Node
+        return True when the node
         """
-        if(self.keyValuePairs == []):
+        if self.keyValuePairs == []:
             return True
         else:
             return False
 
-    def splitNode(self):
+    def isLeaf(self):
+        """
+        returns true when the node has no children
+        """
+        if self.children == []:
+            return True
+        else:
+            return False
+
+
+    def splitNode(self, partition):
         """
         Helper function to insert. 
         Splits the seperation values from the given node into new nodes.
         Will also shift the data to the far left of the node to be availble to new data.
         """
-        # Create new node
-        # decides what values 
 
-    def insertSeperation(self):
-        """
-        Inserts a seperation value into a node ignoring the order restriction.
-        """
-    
-    def insertData(self, partition):
-        print("Meh")
+
 
     def isFull(self):
         return len(self.keyValuePairs) == self.__maxSubNodes
@@ -108,22 +109,41 @@ class BtreeNode:
              # incoming seperator is bigger
             self.keyValuePairs[1] = partition
 
+    def createNewRoot(self):
+        """
+        Creates a new root node that will become the parent of the current Node.
+        New root is initialized with no key value pairs
+        """
+        self.isRoot = False # current node is not the root
+        self.parent = BtreeNode(None, True) # current nodes parent is the new root
+
     
-    def insert(self, partition):
+    def insert(self, incomingPartition):
         """
         Determines where data should go based on given seperator values. 
         Traverses and rebalances as it walks down to the level of leaf nodes. 
         """
         if self.isEmpty():
             # Node is empty
-            self.keyValuePairs[0] = partition
+            self.keyValuePairs[0] = incomingPartition
         elif self.isFull(): 
             # Node is full
+            if self.isRoot:
+                self.createNewRoot()
             self.splitNode()
-            # Insert data into Node, use seperator values to determine order/if reordering if needed
-        else: 
+            self.parent.insert(incomingPartition) #insert into parent node
+        else: # current node is half empty
             # Node has room 
-            self.setPartitionsInOrder(partition)
+            index = 3 # The last possible child 
+            if self.isLeaf(): # insert partition
+                self.setPartitionsInOrder(incomingPartition, index)
+            else: # walk down nodes
+                # find which child to walk into 3 possible outcomes
+                for i, (partition) in enumerate(self.keyValuePairs):
+                    if incomingPartition.getKey() < partition.getKey():
+                        index = i
+                        break
+                return self.children[index].insert(partition)
 
 
 class Btree:

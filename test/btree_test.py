@@ -12,6 +12,12 @@ import pytest
 import unittest
 
 class BtreeNodesTest(unittest.TestCase):
+    def test_insert_isFull(self):
+        """
+        Check that current node is no longer marked as root 
+        and there is a node in the parent
+        """
+
 
     def test_insert_isFull(self):
         """
