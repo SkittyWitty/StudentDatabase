@@ -44,6 +44,7 @@ class BtreeNode:
         self.keyValuePairs = [partition, None] # partitions of the node
 
         self.isRoot = isRoot # Allowed to have less than the required 
+        self.__medianIndex = 1 # the index of the median will always be 1
 
     def traverse(self):
         """
@@ -68,7 +69,7 @@ class BtreeNode:
         """
         return True when the node
         """
-        if self.keyValuePairs == []:
+        if self.keyValuePairs == [None, None] or self.keyValuePairs == []:
             return True
         else:
             return False
@@ -77,37 +78,26 @@ class BtreeNode:
         """
         returns true when the node has no children
         """
-        if self.children == []:
+        if self.children == [] or self.children == [None, None, None]:
             return True
         else:
             return False
-
-
-    def splitNode(self, partition):
+    
+    def __setPartitionsInOrder(self, partition):
         """
-        Helper function to insert. 
-        Splits the seperation values from the given node into new nodes.
-        Will also shift the data to the far left of the node to be availble to new data.
-        """
-
-
-
-    def isFull(self):
-        return len(self.keyValuePairs) == self.__maxSubNodes
-
-    def setPartitionsInOrder(self, partition):
-        """
-        Orders the seperators in the node lexicographically and places them in the 
+        Orders the seperators in the node and places them in the order.
+        Note that python is able to lexicographically sort character by character using compairson operators
+        automatically. Therefore this function supports numbers and strings as keys.
         """
         incomingkey = partition.getKey()
         existingPartitionsKey = self.keyValuePairs[0].getKey()
-        if(existingPartitionsKey < incomingkey):
+        if(incomingkey > existingPartitionsKey):
+             # incoming seperator is bigger
+            self.keyValuePairs[1] = partition
+        else:
             # incoming seperator is smaller
             self.keyValuePairs[1] = self.keyValuePairs[0]
             self.keyValuePairs[0] = partition
-        else:
-             # incoming seperator is bigger
-            self.keyValuePairs[1] = partition
 
     def createNewRoot(self):
         """
@@ -117,6 +107,59 @@ class BtreeNode:
         self.isRoot = False # current node is not the root
         self.parent = BtreeNode(None, True) # current nodes parent is the new root
 
+
+    def findIndex(self, incomingPartition):
+        index = 3 # The last possible child 
+
+        for i, (partition) in enumerate(self.keyValuePairs):
+            if incomingPartition.getKey() < partition.getKey():
+                index = i
+                break
+
+        return index
+
+    def isOverflowing(self):
+        return len(self.keyValuePairs) == self.__order
+
+    def insertMeh(self, partition):
+        """
+        Ignores the partition limit rule to be able to sort for median
+        """
+        index = self.findIndex(self, partition)
+        self.keyValuePairs.insert(index, partition)
+
+    def splitNode(self, partition):
+        """
+        Helper function to insert. 
+        Splits the seperation values from the given node into new nodes.
+        Will also shift the data to the far left of the node to be availble to new data.
+        """
+		# Moves median up
+        self.parent.insertMeh(self.keyValuePairs[0])
+        del self.keyValuePairs[1] # delete the median 
+        assert len(self.keyValuePairs < 3)
+
+        # Create new right child node
+        newRightChild = BtreeNode()
+        newRightChild.parent = self.parent
+        newRightChild.keyValuePairs[0] = self.keyValuePairs[self.__medianIndex:]
+        newRightChild.children[0] = self.children[self.__medianIndex:]
+        for children in newRightChild.children:
+            children.parent = newRightChild
+
+        self.partition[-1] = self.keyValuePairs[:self.__medianIndex]	#Current node becomes new left node
+        self.children[-1] = self.children[:self.__medianIndex]
+
+        if self.parent.children != []: # Parent has children
+            indexOfNewChild = self.parent.keyValuePairs[-1] # end if availible slots
+            for i, children in enumerate(self.parent.children):
+                if children == self:
+                    indexOfNewChild = i + 1
+                    break
+
+            self.parent.children.insert(indexOfNewChild, newRightChild)
+        else: # Parent does NOT have children
+            self.parent.children = ([self, newRightChild])
     
     def insert(self, incomingPartition):
         """
@@ -126,24 +169,19 @@ class BtreeNode:
         if self.isEmpty():
             # Node is empty
             self.keyValuePairs[0] = incomingPartition
-        elif self.isFull(): 
+        elif self.isOverflowing(): 
             # Node is full
             if self.isRoot:
                 self.createNewRoot()
             self.splitNode()
-            self.parent.insert(incomingPartition) #insert into parent node
+            self.parent.insert(incomingPartition) # insert into parent node
         else: # current node is half empty
             # Node has room 
-            index = 3 # The last possible child 
             if self.isLeaf(): # insert partition
-                self.setPartitionsInOrder(incomingPartition, index)
+                self.__setPartitionsInOrder(incomingPartition)
             else: # walk down nodes
-                # find which child to walk into 3 possible outcomes
-                for i, (partition) in enumerate(self.keyValuePairs):
-                    if incomingPartition.getKey() < partition.getKey():
-                        index = i
-                        break
-                return self.children[index].insert(partition)
+                index = self.findIndex()
+                return self.children[index].insert(incomingPartition)
 
 
 class Btree:

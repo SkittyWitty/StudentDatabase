@@ -7,7 +7,7 @@ class Student(BtreeNodePartition):
     """
     def __init__(self, name, gpa):
         # Creating a tuple to represent student data so it is immutable by outsiders
-        studentData = (gpa, self.generateRedId)
+        studentData = (gpa, self.generateRedId())
 
         # markers for where in the tuple specific data is located
         self.gpaIndex = 0
