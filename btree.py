@@ -99,7 +99,7 @@ class BtreeNode:
             self.keyValuePairs[1] = self.keyValuePairs[0]
             self.keyValuePairs[0] = partition
 
-    def createNewRoot(self):
+    def __createNewRoot(self):
         """
         Creates a new root node that will become the parent of the current Node.
         New root is initialized with no key value pairs
@@ -112,6 +112,7 @@ class BtreeNode:
         index = 3 # The last possible child 
 
         for i, (partition) in enumerate(self.keyValuePairs):
+            # Handle None case
             if incomingPartition.getKey() < partition.getKey():
                 index = i
                 break
@@ -121,36 +122,38 @@ class BtreeNode:
     def isOverflowing(self):
         return len(self.keyValuePairs) == self.__order
 
-    def insertMeh(self, partition):
+    def __insertMeh(self, partition):
         """
         Ignores the partition limit rule to be able to sort for median
         """
-        index = self.findIndex(self, partition)
+        index = self.findIndex(partition)
         self.keyValuePairs.insert(index, partition)
 
-    def splitNode(self, partition):
+    def splitNode(self, incomingPartition):
         """
         Helper function to insert. 
         Splits the seperation values from the given node into new nodes.
         Will also shift the data to the far left of the node to be availble to new data.
         """
 		# Moves median up
-        self.parent.insertMeh(self.keyValuePairs[0])
-        del self.keyValuePairs[1] # delete the median 
-        assert len(self.keyValuePairs < 3)
+        self.parent.insert(self.keyValuePairs[self.__medianIndex]) #TODO ASSUMING LAST ELEMENT IS THE MEDIAN
+        self.keyValuePairs[self.__medianIndex]  = None # delete the median 
+        assert self.keyValuePairs[1] == None
+        assert self.parent.keyValuePairs[1] == None
+        assert len(self.keyValuePairs) < 3
 
         # Create new right child node
-        newRightChild = BtreeNode()
+        newRightChild = BtreeNode(incomingPartition) #TODO ASSUMING incoming parition is the right
         newRightChild.parent = self.parent
-        newRightChild.keyValuePairs[0] = self.keyValuePairs[self.__medianIndex:]
-        newRightChild.children[0] = self.children[self.__medianIndex:]
-        for children in newRightChild.children:
-            children.parent = newRightChild
+        #newRightChild.keyValuePairs[0] = self.keyValuePairs[self.__medianIndex:]
+        if(not self.isLeaf()): #if there is existing children give them a new parent
+            newRightChild.children[0] = self.children[self.__medianIndex:] # grab all the children to the left of the median
+            for child in newRightChild.children: # Tell new children who there parents are
+                child.parent = newRightChild
+            self.keyValuePairs[-1] = self.keyValuePairs[:self.__medianIndex]	#Current node becomes new left node
+            self.children[-1] = self.children[:self.__medianIndex]
 
-        self.partition[-1] = self.keyValuePairs[:self.__medianIndex]	#Current node becomes new left node
-        self.children[-1] = self.children[:self.__medianIndex]
-
-        if self.parent.children != []: # Parent has children
+        if self.parent.children != [None, None, None]: # Parent has children
             indexOfNewChild = self.parent.keyValuePairs[-1] # end if availible slots
             for i, children in enumerate(self.parent.children):
                 if children == self:
@@ -169,13 +172,13 @@ class BtreeNode:
         if self.isEmpty():
             # Node is empty
             self.keyValuePairs[0] = incomingPartition
-        elif self.isOverflowing(): 
+        elif self.keyValuePairs[0] != None and self.keyValuePairs[1] != None: 
             # Node is full
             if self.isRoot:
-                self.createNewRoot()
-            self.splitNode()
-            self.parent.insert(incomingPartition) # insert into parent node
-        else: # current node is half empty
+                self.__createNewRoot()
+            self.splitNode(incomingPartition)
+            #self.parent.insert(incomingPartition) # insert into parent node
+        else: # current node is not overflowing
             # Node has room 
             if self.isLeaf(): # insert partition
                 self.__setPartitionsInOrder(incomingPartition)

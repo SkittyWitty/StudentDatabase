@@ -34,6 +34,20 @@ class BtreeNodesTest(unittest.TestCase):
         assert testNode.keyValuePairs[0] == testPartition
         assert testNode._BtreeNode__order == 3
 
+    def test_createNewRoot(self):
+        # Set-up 
+        testKey = "Min-slice"
+        testValue = 123
+        testPartition = BtreeNodePartition(testKey, testValue)
+        testNode = BtreeNode(testPartition, True)
+
+        # Call
+        testNode._BtreeNode__createNewRoot()
+
+        # Assert
+        assert testNode.parent.isRoot == True # new parent node is the root
+        assert testNode.isRoot == False # current node no longer root
+
     def test_setPartitionsInOrder(self):
         testKey = "Min-slice"
         testValue = 123
@@ -93,14 +107,13 @@ class BtreeNodesTest(unittest.TestCase):
 
     def test_insert_isOverflowing(self):
         """
-        Test insert when node is currently empty
+        Test insert when the node is about to overflow
         """
-
+        # Set-up
         # Creating what should be the left child
         leftKey = "Almond"
         leftValue = 222
         leftPartition = BtreeNodePartition(leftKey, leftValue)
-        startNode = BtreeNode(leftPartition, True) # starts off as the root node
 
         # Creating what should be the middle note
         medianKey = "Bethany"
@@ -112,14 +125,47 @@ class BtreeNodesTest(unittest.TestCase):
         rightValue = 333
         rightPartition = BtreeNodePartition(rightKey, rightValue)
 
+        # Call
+        startNode = BtreeNode(leftPartition, True) # future left node starts off as the root node
         startNode.insert(medianPartition)
         startNode.insert(rightPartition)
 
+        # Assert
         # median Node should become the new root 
-        #assert startNode.parent.isRoot == True
-        
+        assert startNode.parent.isRoot == True
         # startNode should now have median as it's parent
-        #assert startNode.parent.getKey() == medianKey
+        assert startNode.parent.keyValuePairs[0].getKey() == medianKey
+
+        # Now that parent is confirmed to be Bethany check 
+        newRoot = startNode.parent
+        assert newRoot.children[0].keyValuePairs[0].getKey() == leftKey  # To the left is Almond
+        assert newRoot.children[1].keyValuePairs[0].getKey() == rightKey # To the right is Chloe
+
+    def test_insert_fullTreeCopiesChildren(self):
+        """
+        When there is an overflow and subtrees are full ensure that
+        """
+
+    def test_insert_medianIsNotIncoming(self):
+        """
+        When there is an overflow and the incoming partition is not the median
+        """
+        # Set-up
+        # Creating what should be the left child
+        leftKey = "Almond"
+        leftValue = 222
+        leftPartition = BtreeNodePartition(leftKey, leftValue)
+
+        # Creating what should be the middle note
+        medianKey = "Bethany"
+        medianValue = 111
+        medianPartition = BtreeNodePartition(medianKey, medianValue)
+
+        # Creating what should be the right child
+        rightKey = "Chloe"
+        rightValue = 333
+        rightPartition = BtreeNodePartition(rightKey, rightValue)
+
 
 
     def test_splitNode(self):
