@@ -353,13 +353,14 @@ class BtreeTests(unittest.TestCase):
         testBtree = Btree()
         testBtree.insert(BtreeNodePartition("Effy", 2))
         testBtree.insert(BtreeNodePartition("Bernie", 1))
+        testBtree.insert(BtreeNodePartition("Catnoir", 45))
         testBtree.insert(BtreeNodePartition("Twili", 3))
         testBtree.insert(BtreeNodePartition("Usui", 4))
         testBtree.insert(BtreeNodePartition("Zecora", 5))
 
         testListOfKeys = testBtree.traverse()
 
-        print (testListOfKeys)
+        assert testListOfKeys == ["Bernie", "Catnoir", "Effy", "Usui", "Zecora"]
 
 
 

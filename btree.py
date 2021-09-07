@@ -50,19 +50,24 @@ class BtreeNode:
         """
         Look through the data items in the node
         """ 
-        if len(self.children) > 0:
-            self.children[0].traverse(myList)
+        for index in range(0,3):
+            if len(self.children) > index:
+                self.children[index].traverse(myList)
+            if len(self.keyValuePairs) > index:
+                myList.append(self.keyValuePairs[index].getKey())
 
-        myList.append(self.keyValuePairs[0].getKey())
-        
-        if len(self.children) > 1:
-            self.children[1].traverse(myList)
+        return myList
 
-        if len(self.keyValuePairs) == 2:
-            myList.append(self.keyValuePairs[1].getKey())
-
-        if len(self.children) > 2:
-            self.children[2].traverse(myList)
+    def traverse(self, myList, filter):
+        """
+        Look through the data items in the node
+        """ 
+        for index in range(0,3):
+            if len(self.children) > index:
+                self.children[index].traverse(myList)
+            if len(self.keyValuePairs) > index:
+                if self.keyValuePairs[index].getValue() == filter:
+                    myList.append(self.keyValuePairs[index].getKey())
 
         return myList
 
