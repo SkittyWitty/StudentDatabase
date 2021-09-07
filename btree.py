@@ -35,13 +35,12 @@ class BtreeNode:
     """
     Node in a B-tree of order 3. Meaning that 2 data items will be allowed in the node.
     """
-    def __init__(self, partition=None, isRoot=False):
+    def __init__(self, isRoot=False):
         self.__order = 3
-        self.__maxSubNodes = self.__order - 1
 
-        self.children = [None, None, None]
+        self.children = []
         self.parent = None
-        self.keyValuePairs = [partition, None] # partitions of the node
+        self.keyValuePairs = [] # partitions of the node
 
         self.isRoot = isRoot # Allowed to have less than the required 
         self.__medianIndex = 1 # the index of the median will always be 1
@@ -83,103 +82,82 @@ class BtreeNode:
         else:
             return False
     
-    def __setPartitionsInOrder(self, partition):
-        """
-        Orders the seperators in the node and places them in the order.
-        Note that python is able to lexicographically sort character by character using compairson operators
-        automatically. Therefore this function supports numbers and strings as keys.
-        """
-        incomingkey = partition.getKey()
-        existingPartitionsKey = self.keyValuePairs[0].getKey()
-        if(incomingkey > existingPartitionsKey):
-             # incoming seperator is bigger
-            self.keyValuePairs[1] = partition
-        else:
-            # incoming seperator is smaller
-            self.keyValuePairs[1] = self.keyValuePairs[0]
-            self.keyValuePairs[0] = partition
-
     def __createNewRoot(self):
         """
         Creates a new root node that will become the parent of the current Node.
         New root is initialized with no key value pairs
         """
         self.isRoot = False # current node is not the root
-        self.parent = BtreeNode(None, True) # current nodes parent is the new root
-
+        self.parent = BtreeNode(True) # current nodes parent is the new root
 
     def findIndex(self, incomingPartition):
-        index = 2 # The last possible child 
+        # The last possible child 
+        if(len(self.keyValuePairs) == 0):
+            return 0
+
+        index = len(self.keyValuePairs)
 
         for i, (partition) in enumerate(self.keyValuePairs):
             # Handle None case
-            if partition != None and (incomingPartition.getKey() < partition.getKey()):
+            if (incomingPartition.getKey() < partition.getKey()):
                 index = i
                 break
 
         return index
 
     def isOverflowing(self):
-        return len(self.keyValuePairs) == self.__order
+        return len(self.keyValuePairs) == self.__order - 1
 
-    def __insertMeh(self, partition):
-        """
-        Ignores the partition limit rule to be able to sort for median
-        """
-        index = self.findIndex(partition)
-        self.keyValuePairs.insert(index, partition)
-
-    def splitNode(self, incomingPartition):
+    def splitNode(self):
         """
         Helper function to insert. 
         Splits the seperation values from the given node into new nodes.
         Will also shift the data to the far left of the node to be availble to new data.
         """
 		# Moves median up
-        index = self.findIndex(incomingPartition)
-        if index == 2: # greater incoming partition
-            newRightChildPartition = incomingPartition
-            self.parent.insert(self.keyValuePairs[self.__medianIndex]) # middle will be the median
-            self.keyValuePairs[self.__medianIndex] = None # delete the median 
-        elif index == self.__medianIndex: # incoming partion should be the median
-            newRightChildPartition = self.keyValuePairs[1] # greatest value is new right child
-            self.parent.insert(incomingPartition) #incoming partition is median
-            self.keyValuePairs[1] = None
-        else: # smallest element
-            newRightChildPartition = self.keyValuePairs[1] # greatest value is new right child
-            newLeftChild = BtreeNode(incomingPartition) # incoming parition will be a child of current partition
-            self.children[0] = newLeftChild
-            self.keyValuePairs[1] = None
+        self.parent.insertKeyValues(self.keyValuePairs[self.__medianIndex])
+        del self.keyValuePairs[self.__medianIndex]
 
-  
-        assert self.keyValuePairs[1] == None
-        assert self.parent.keyValuePairs[1] == None
-        assert len(self.keyValuePairs) < 3
+        # Establish new right child node 
+        newRightChild = BtreeNode()
+        newRightChild.parent = self.parent
+        # Everything on the right side of the median becomes current Nodes new children and keyValuePairs
+        newRightChild.keyValuePairs = self.keyValuePairs[1:]
+        newRightChild.children = self.children[1:]
+        for child in newRightChild.children:
+            child.parent = newRightChild
 
-        # Create new right child node
-        newRightChild = BtreeNode(newRightChildPartition) 
-        if(self.parent != None):
-            newRightChild.parent = self.parent
-        #newRightChild.keyValuePairs[0] = self.keyValuePairs[self.__medianIndex:]
-        if(not self.isLeaf()): #if there is existing children give them a new parent
-            newRightChild.children = self.children[self.__medianIndex:] # grab all the children to the left of the median
-            for child in newRightChild.children: # Tell new children who there parents are
-                if(child != None):
-                    child.parent = newRightChild
-            self.keyValuePairs[-1] = self.keyValuePairs[:self.__medianIndex]	#Current node becomes new left node
-            self.children[-1] = self.children[:self.__medianIndex]
+        self.keyValuePairs = self.keyValuePairs[:1]	
+        self.children = self.children[:1]
 
-        if self.parent.children != [None, None, None]: # Parent has children
-            indexOfNewChild = self.parent.keyValuePairs[-1] # end if availible slots
-            for i, children in enumerate(self.parent.children):
-                if children == self:
-                    indexOfNewChild = i + 1
+        if self.parent.children:
+            index_of_new_child = len(self.parent.keyValuePairs)
+            for i, child in enumerate(self.parent.children):
+                if child == self:
+                    index_of_new_child = i + 1
                     break
 
-            self.parent.children.insert(indexOfNewChild, newRightChild)
-        else: # Parent does NOT have children
-            self.parent.children = ([self, newRightChild])
+            self.parent.children.insert(index_of_new_child, newRightChild)
+            #self.parent.keyValuePairs[(len(self.parent.keyValuePairs) + 1)] = None
+
+        else:
+            self.parent.children = [self, newRightChild]
+
+    def set_values(self, partitionList):
+        index = 0
+        for partition in partitionList:
+            self.keyValuePairs[index] = partition
+            index = index + 1
     
+    def insertKeyValues(self, partition, index=None):
+        if not self.keyValuePairs:
+            self.keyValuePairs.insert(0, partition)
+        else:
+            if not index:
+                index = self.findIndex(partition)
+
+            self.keyValuePairs.insert(index, partition)
+
     def insert(self, incomingPartition):
         """
         Determines where data should go based on given seperator values. 
@@ -187,19 +165,19 @@ class BtreeNode:
         """
         if self.isEmpty():
             # Node is empty
-            self.keyValuePairs[0] = incomingPartition
-        elif self.keyValuePairs[0] != None and self.keyValuePairs[1] != None: 
+            self.insertKeyValues(incomingPartition)
+        elif self.isOverflowing(): 
             # Node is full
+            self.insertKeyValues(incomingPartition)
             if self.isRoot:
                 self.__createNewRoot()
-            self.splitNode(incomingPartition)
-            #self.parent.insert(incomingPartition) # insert into parent node
+            self.splitNode()
         else: # current node is not overflowing
             # Node has room 
+            index = self.findIndex(incomingPartition)
             if self.isLeaf(): # insert partition
-                self.__setPartitionsInOrder(incomingPartition)
+                self.insertKeyValues(incomingPartition, index)
             else: # walk down nodes
-                index = self.findIndex()
                 return self.children[index].insert(incomingPartition)
 
 
