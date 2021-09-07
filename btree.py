@@ -49,18 +49,20 @@ class BtreeNode:
     def traverse(self, myList):
         """
         Look through the data items in the node
-        """
-        for keyValue in self.keyValuePairs:
-            if self.children:
-                self.children[0].traverse(myList)
-                myList.append(keyValue.getKey())
-                self.children[1].traverse(myList)
-            else:
-                myList.append(keyValue.getKey())
+        """ 
+        if len(self.children) > 0:
+            self.children[0].traverse(myList)
+
+        myList.append(self.keyValuePairs[0].getKey())
         
-        # Print subtree of last child
-        #if(self.isLeaf() == False):
-            #self.children[0].traverse(myList)    
+        if len(self.children) > 1:
+            self.children[1].traverse(myList)
+
+        if len(self.keyValuePairs) == 2:
+            myList.append(self.keyValuePairs[1].getKey())
+
+        if len(self.children) > 2:
+            self.children[2].traverse(myList)
 
         return myList
 

@@ -345,7 +345,8 @@ class BtreeTests(unittest.TestCase):
         testBtree.insert(leftPartition)
         testBtree.insert(medianPartition)
         testBtree.insert(rightPartition)
-        testBtree.traverse() == [leftKey, medianKey, rightKey]
+        testListOfKeys = testBtree.traverse() 
+        assert testListOfKeys == [leftKey, medianKey, rightKey]
 
 
     def test_traverse_thirdNodeAppearance(self):
