@@ -1,6 +1,9 @@
+import operator # Used to handle traverse filtering
+
 class BtreeNodePartition:
     """
-    Contains the key, value pair of one partion of a BTree's node
+    Contains the key, value pair of one partion of a BTree's node.
+    To act only as an abstract class. 
     """
     def __init__(self, key, value):
         self.key = key
@@ -47,7 +50,7 @@ class BtreeNode:
             None
         """
         self.__order = 3 # specifies max number of children per node 
-                         # (order - 1) = max number of data points per node
+        self.__maxKeys = self.__order - 1 # max number of key/value pairs per node
 
         self.children = []
         self.parent = None
@@ -93,7 +96,7 @@ class BtreeNode:
         else:
             return False
 
-    def isLeaf(self):
+    def __isLeaf(self):
         """
         description
             Checks if the node has children
@@ -115,29 +118,55 @@ class BtreeNode:
         self.isRoot = False # current node is not the root
         self.parent = BtreeNode(True) # current nodes parent is the new root
 
-    def findIndex(self, incomingPartition):
-        # The last possible child 
+    def __findIndex(self, incomingPartition):
+        """
+        description
+            
+        params
+            partition - partition to be inserted
+            index - where in the order the partition would be placed in the list 
+                    of key/value pairs (ignoring max keys limiter)
+        return
+            possible recursion to walk down the children 
+            nodes to find a place to insert itself 
+        """
+        # Handle case for 
         if(len(self.keyValuePairs) == 0):
             return 0
 
+        # If an index is not found assume it is last in the order 
         index = len(self.keyValuePairs)
 
         for i, (partition) in enumerate(self.keyValuePairs):
-            # Handle None case
             if (incomingPartition.getKey() < partition.getKey()):
                 index = i
                 break
 
         return index
 
-    def isOverflowing(self):
-        return len(self.keyValuePairs) == self.__order - 1
-
-    def splitNode(self):
+    def __isOverflowing(self):
         """
-        Helper function to insert. 
-        Splits the seperation values from the given node into new nodes.
-        Will also shift the data to the far left of the node to be availble to new data.
+        definition
+            decides if node is overflowing when a request to insert occurs
+            Checks if number key/value pairs is already at it's limit
+            max key
+        params
+            None
+        return
+            True if the node will be overflowing
+        """
+        return self.__isLeaf() and len(self.keyValuePairs) == self.__maxKeys
+
+    def __splitNode(self):
+        """
+        definition 
+            Helper function to insert. 
+            Splits the seperation values from the given node into new nodes.
+            Will also shift the data to the far left of the node to be availble to new data.
+        params
+            None
+        return 
+            None
         """
 		# Moves median up
         self.parent.insertKeyValues(self.keyValuePairs[self.__medianIndex])
@@ -146,14 +175,18 @@ class BtreeNode:
         # Establish new right child node 
         newRightChild = BtreeNode()
         newRightChild.parent = self.parent
-        # Everything on the right side of the median becomes current Nodes new children and keyValuePairs
+        # Everything on the right side of the median becomes 
+        # the new right nodes children and keyValuePairs
         newRightChild.keyValuePairs = self.keyValuePairs[1:]
         newRightChild.children = self.children[1:]
         for child in newRightChild.children:
             child.parent = newRightChild
 
+        # Everything on the left side of the median becomes
+        # current nodes new children and keyValuePairs
         self.keyValuePairs = self.keyValuePairs[:1]	
         self.children = self.children[:1]
+
 
         if self.parent.children:
             index_of_new_child = len(self.parent.keyValuePairs)
@@ -163,48 +196,56 @@ class BtreeNode:
                     break
 
             self.parent.children.insert(index_of_new_child, newRightChild)
-            #self.parent.keyValuePairs[(len(self.parent.keyValuePairs) + 1)] = None
-
         else:
             self.parent.children = [self, newRightChild]
-
-    def set_values(self, partitionList):
-        index = 0
-        for partition in partitionList:
-            self.keyValuePairs[index] = partition
-            index = index + 1
-    
+  
     def insertKeyValues(self, partition, index=None):
+        """
+        description
+            
+        params
+            partition - partition to be inserted
+            index - where in the order the partition would be placed in the list 
+                    of key/value pairs (ignoring max keys limiter)
+        return
+            possible recursion to walk down the children 
+            nodes to find a place to insert itself 
+        """
         if not self.keyValuePairs:
             self.keyValuePairs.insert(0, partition)
         else:
             if not index:
-                index = self.findIndex(partition)
+                index = self.__findIndex(partition)
 
             self.keyValuePairs.insert(index, partition)
 
     def insert(self, incomingPartition):
         """
-        Determines where data should go based on given seperator values. 
-        Traverses and rebalances as it walks down to the level of leaf nodes. 
+        description
+            Determines where data should go based on given seperator values. 
+            Traverses and rebalances as it walks down to the level of leaf nodes.
+        params
+            incomingPartition - the partition that will be added to the Btree
+        return
+            possible recursion to walk down the children 
+            nodes to find a place to insert itself 
         """
         if self.isEmpty():
             # Node is empty
             self.insertKeyValues(incomingPartition)
-        elif self.isOverflowing(): 
+        elif self.__isOverflowing(): 
             # Node is full
             self.insertKeyValues(incomingPartition)
             if self.isRoot:
                 self.__createNewRoot()
-            self.splitNode()
+            self.__splitNode()
         else: # current node is not overflowing
             # Node has room 
-            index = self.findIndex(incomingPartition)
-            if self.isLeaf(): # insert partition
+            index = self.__findIndex(incomingPartition)
+            if self.__isLeaf(): # insert partition
                 self.insertKeyValues(incomingPartition, index)
-            else: # walk down nodes
+            else: # walk down nodes via recursion
                 return self.children[index].insert(incomingPartition)
-
 
 class Btree:
     """
@@ -215,7 +256,10 @@ class Btree:
         """
         description
             Initializes Btree data structure by starting it at the root.
-        
+        params
+            None
+        return
+            None
         """
         self.__root  = None # entry point into the btree
 
@@ -248,10 +292,9 @@ class Btree:
         """
         keyList = []
         if(self.__root != self.__root.isEmpty()): # check if there is a root node with keys to print
-            self.__root.traverse(keyList) # traverse the nodes starting at the root
+            self.__root.traverse(keyList, filter) # traverse the nodes starting at the root
         
-        print (keyList)
-        return keyList # Returning list for ease of testing
+        return keyList 
 
     def grabIndex(self, index):
         """
@@ -265,7 +308,7 @@ class Btree:
         """
         keyList = self.traverse() # obtain a list of keys
         if(len(keyList) > index):
-            print(keyList[index-1]) # subtract 1 to account for list indices starting at 0
+            return (keyList[index-1]) # subtract 1 to account for list indices starting at 0
         else:
             raise Exception("There is no element at spot: " + index)
 

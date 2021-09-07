@@ -2,6 +2,7 @@ import os
 import sys
 import inspect
 
+# Obtain system path to Btree files to import
 currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 parentdir = os.path.dirname(currentdir)
 sys.path.insert(0, parentdir) 
@@ -23,7 +24,7 @@ class BtreeNodesTest(unittest.TestCase):
         testNode = BtreeNode(True)
         testNode.keyValuePairs = [BtreeNodePartition("Bethany", 1), BtreeNodePartition("Vlad", 2)]
         testPartition = BtreeNodePartition("Applejack", 123)
-        index = testNode.findIndex(testPartition)
+        index = testNode._BtreeNode__findIndex(testPartition)
 
         assert index == 0
 
@@ -31,7 +32,7 @@ class BtreeNodesTest(unittest.TestCase):
         testNode = BtreeNode(True)
         testNode.keyValuePairs = [BtreeNodePartition("Adrian", 1), BtreeNodePartition("Marinette", 3)]
         testPartition = BtreeNodePartition("Luca", 123)
-        index = testNode.findIndex(testPartition)
+        index = testNode._BtreeNode__findIndex(testPartition)
 
         assert index == 1
     
@@ -39,7 +40,7 @@ class BtreeNodesTest(unittest.TestCase):
         testNode = BtreeNode(True)
         testNode.keyValuePairs = [BtreeNodePartition("Catnoir", 2), BtreeNodePartition("Ladybug", 4)]
         testPartition = BtreeNodePartition("Renarouge", 123)
-        index = testNode.findIndex(testPartition)
+        index = testNode._BtreeNode__findIndex(testPartition)
 
         assert index == 2
 
@@ -80,7 +81,7 @@ class BtreeNodesTest(unittest.TestCase):
         """
         testBtree = BtreeNode()
         testBtree.keyValuePairs = [(1,1),(1,1)]
-        assert testBtree.isOverflowing() == True
+        assert testBtree._BtreeNode__isOverflowing() == True
 
     def test_insert_isEmpty(self):
         """
@@ -265,20 +266,13 @@ class BtreeNodesTest(unittest.TestCase):
         assert startNode.parent.children[0].keyValuePairs[0].getKey() == leftKey # To the right is Maverik
         assert startNode.parent.children[1].keyValuePairs[0].getKey() == rightKey # To the right is Maverik
 
-
-    def test_splitNode(self):
-        """
-        Tests that the node is split properly when full
-        """
-
     def test_isEmpty(self):
         """
         Test discerns that the node is empty
         """
         testBtree = BtreeNode()
-        testBtree.keyValuePairs = [None, None]
+        testBtree.keyValuePairs = []
         assert testBtree.isEmpty() == True
-
 
 class BtreeTests(unittest.TestCase):
     def test_btree_init(self):
@@ -353,14 +347,14 @@ class BtreeTests(unittest.TestCase):
         testBtree = Btree()
         testBtree.insert(BtreeNodePartition("Effy", 2))
         testBtree.insert(BtreeNodePartition("Bernie", 1))
-        testBtree.insert(BtreeNodePartition("Catnoir", 45))
         testBtree.insert(BtreeNodePartition("Twili", 3))
         testBtree.insert(BtreeNodePartition("Usui", 4))
         testBtree.insert(BtreeNodePartition("Zecora", 5))
+        testBtree.insert(BtreeNodePartition("Catnoir", 45))
 
         testListOfKeys = testBtree.traverse()
 
-        assert testListOfKeys == ["Bernie", "Catnoir", "Effy", "Usui", "Zecora"]
+        assert testListOfKeys == ["Bernie", "Catnoir", "Effy", "Twili", "Usui", "Zecora"]
 
 
 
