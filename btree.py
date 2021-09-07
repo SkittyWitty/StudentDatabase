@@ -33,56 +33,74 @@ class BtreeNodePartition:
 
 class BtreeNode:
     """
-    Node in a B-tree of order 3. Meaning that 2 data items will be allowed in the node.
+    Node in a B-tree of order 3. 
+    Meaning that (order - 1) = 2 data items will be allowed in the node.
     """
     def __init__(self, isRoot=False):
+        """
+        description
+            initializes the BtreeNode by creating an empty node
+            with no children or key/value pairs
+        params
+            isRoot - specifies if this node ia the root of a tree
+        return
+            None
+        """
         self.__order = 3 # specifies max number of children per node 
                          # (order - 1) = max number of data points per node
 
         self.children = []
         self.parent = None
-        self.keyValuePairs = [] # partitions of the node
-
+        
+        self.keyValuePairs = [] # also referred to as partitions of the node
         self.isRoot = isRoot # Allowed to have less than the required 
-        self.__medianIndex = 1 # the index of the median will always be 1
+        self.__medianIndex = 1 # the index of the median value when dealing with overflow d will always be 1
 
-    def traverse(self, myList):
+    def traverse(self, keyList, filter=None):
         """
-        Look through the data items in the node
+        description:
+            Visit each child and partition in the node 
+            adding each key visited to a list
+        param:
+            keyList -   list of all keys that will be added to
+                        each recursive call
+        return
+            keyList (see params)
         """ 
-        for index in range(0,3):
+        for index in range(0, self.__order): # Traverse all 3 possibilities of children
             if len(self.children) > index:
-                self.children[index].traverse(myList)
-            if len(self.keyValuePairs) > index:
-                myList.append(self.keyValuePairs[index].getKey())
+                self.children[index].traverse(keyList) # continue traversing down if child is found
+            if len(self.keyValuePairs) > index: # adding nodes keys to the list
+                if filter != None and self.keyValuePairs[index].getValue() == filter: # Optional filter
+                    keyList.append(self.keyValuePairs[index].getKey())
+                else: # Otherwise add all keys to the list
+                    keyList.append(self.keyValuePairs[index].getKey())
 
-        return myList
-
-    def traverse(self, myList, filter):
-        """
-        Look through the data items in the node
-        """ 
-        for index in range(0,3):
-            if len(self.children) > index:
-                self.children[index].traverse(myList)
-            if len(self.keyValuePairs) > index:
-                if self.keyValuePairs[index].getValue() == filter:
-                    myList.append(self.keyValuePairs[index].getKey())
-
-        return myList
+        return keyList
 
     def isEmpty(self):
         """
-        return True when the node
+        description
+            checks if node is empty by checking number of partitioning
+            key/value pairs within the node
+        params
+            None
+        return 
+            True when the node
         """
-        if self.keyValuePairs == [None, None] or self.keyValuePairs == []:
+        if self.keyValuePairs == []: # check for empty list
             return True
         else:
             return False
 
     def isLeaf(self):
         """
-        returns true when the node has no children
+        description
+            Checks if the node has children
+        params
+            None        
+        returns
+            True when the node has no children
         """
         if self.children == [] or self.children == [None, None, None]:
             return True
@@ -190,16 +208,25 @@ class BtreeNode:
 
 class Btree:
     """
-    B-Tree with an order of 3. Sorts in lexicographical order
+    BTree data structure with a fixed order of 3.
+    Sorts both in lexicographical and numerical order
     """
     def __init__(self):
         """
-        Initializes Btree data structure
+        description
+            Initializes Btree data structure by starting it at the root.
+        
         """
         self.__root  = None # entry point into the btree
 
     def insert(self, partition):
         """
+        description
+            Traverses all nodes within the tree adding there keys, in order, to a list.
+        parameters
+            valueFilter(optional) - filter values of the list
+        return 
+            keyList - list of all keys in order within the 
         """
         if not self.__root:
             # Currently no root node add one
@@ -210,12 +237,12 @@ class Btree:
         if not self.__root.isRoot: # root might have changed
             self.__root = self.__root.parent
 
-    def traverse(self): 
+    def traverse(self, filter=None): 
         """
         description
             Traverses all nodes within the tree adding there keys, in order, to a list.
         parameters
-            NONE
+            valueFilter(optional) - filter values of the list
         return 
             keyList - list of all keys in order within the 
         """
@@ -226,49 +253,21 @@ class Btree:
         print (keyList)
         return keyList # Returning list for ease of testing
 
-    def findElementNumber(self, elementNumber):
+    def grabIndex(self, index):
         """
-        description
-            Finds the element at the specified given number otherwise throw an exception
+        description 
+            Given an index, returns the index of the item in 
+            the B-tree in order. If index is out-of-bounds throws an exception.
         parameters
-            elementNumber -  
-        return 
-            keyList - list of all keys in order within the 
-        """
-        keyList = self.traverse()
-        try:
-            print (keyList[elementNumber-1])
-            return keyList[elementNumber-1]
-        except:
-            print("Element Number is not valid")
-            return None
-
-    def traverseValueFilter(self, valueFilter, valueIndex=0):
-        """
-        description
-            Traverses all nodes within the tree only adding keys
-            of that match the value of the given filter.
-        parameters
-            valueFilter - the value you want to filter for
-            valueIndex  - optional index of the value array
+            index - list item number to retrieve
         return
-            list of al 
+            BtreeNodePartition that matches the index provided
         """
-        filteredList = []
-
-        return filteredList
-
-
-    def search(self, query):
-        """
-        Given a k, returns the k'th element in 
-        the B-tree in lexicographical order. 
-        If k is out-of-bounds throw an exception.
-        """
-        if self.__root == self.__root.isEmpty(): # root is empty return None
-            return None
+        keyList = self.traverse() # obtain a list of keys
+        if(len(keyList) > index):
+            print(keyList[index-1]) # subtract 1 to account for list indices starting at 0
         else:
-            return self.__root.search(query)
+            raise Exception("There is no element at spot: " + index)
 
 
 
