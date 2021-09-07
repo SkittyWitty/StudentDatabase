@@ -4,6 +4,7 @@ class BtreeNodePartition:
     """
     Contains the key, value pair of one partion of a BTree's node.
     To act only as an abstract class. 
+    No setters allowed as BTree balance would be disturbed by changing key/value pairs
     """
     def __init__(self, key, value):
         self.key = key
@@ -11,27 +12,25 @@ class BtreeNodePartition:
 
     def getKey(self):
         """
-        public accessor for the key
+        description:
+            public accessor for the key
+        param
+            None
+        return
+            key that has been stored in the partition
         """
         return self.key
 
     def getValue(self):
         """
-        public accessor for the value
+        description:
+            public accessor for the value
+        param
+            None
+        return
+            value that has been stored in the partition
         """
         return self.value
-
-    def __setKey(self, key):
-        """
-        private method for setting the key
-        """
-        self.key = key
-
-    def __setValue(self, value):
-        """
-        private method for setting the value
-        """
-        self.value = value
 
 
 class BtreeNode:
@@ -105,7 +104,7 @@ class BtreeNode:
         returns
             True when the node has no children
         """
-        if self.children == [] or self.children == [None, None, None]:
+        if self.children == []:
             return True
         else:
             return False
@@ -281,7 +280,7 @@ class Btree:
         if not self.__root.isRoot: # root might have changed
             self.__root = self.__root.parent
 
-    def traverse(self, filter=None): 
+    def traverse(self, valuefilter=None): 
         """
         description
             Traverses all nodes within the tree adding there keys, in order, to a list.
@@ -292,7 +291,7 @@ class Btree:
         """
         keyList = []
         if(self.__root != self.__root.isEmpty()): # check if there is a root node with keys to print
-            self.__root.traverse(keyList, filter) # traverse the nodes starting at the root
+            self.__root.traverse(keyList, valuefilter) # traverse the nodes starting at the root
         
         return keyList 
 

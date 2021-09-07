@@ -2,7 +2,7 @@ import os
 import sys
 import inspect
 
-# Obtain system path to Btree files to import
+# Obtain system path to btree files to import Btree Objects
 currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 parentdir = os.path.dirname(currentdir)
 sys.path.insert(0, parentdir) 
@@ -10,16 +10,17 @@ sys.path.insert(0, parentdir)
 from btree import Btree
 from btree import BtreeNode
 from btree import BtreeNodePartition
-import pytest
 import unittest
 
+"""
+    Some tests have written diagrams used for visualizations 
+    for tests that will be provided upon request
+    - Mindy DeWaal
+"""
 class BtreeNodesTest(unittest.TestCase):
-    def reset_variables(self, testNode):
-        """
-        Resets commonly used variables in the BtreeNode
-        """
-        testNode.keyValuePairs = [None, None]
-
+    """
+    Unit tests for the BtreeNodes class
+    """
     def test_findIndex_returnZero(self):
         testNode = BtreeNode(True)
         testNode.keyValuePairs = [BtreeNodePartition("Bethany", 1), BtreeNodePartition("Vlad", 2)]
