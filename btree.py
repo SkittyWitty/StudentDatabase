@@ -36,7 +36,8 @@ class BtreeNode:
     Node in a B-tree of order 3. Meaning that 2 data items will be allowed in the node.
     """
     def __init__(self, isRoot=False):
-        self.__order = 3
+        self.__order = 3 # specifies max number of children per node 
+                         # (order - 1) = max number of data points per node
 
         self.children = []
         self.parent = None
@@ -45,25 +46,24 @@ class BtreeNode:
         self.isRoot = isRoot # Allowed to have less than the required 
         self.__medianIndex = 1 # the index of the median will always be 1
 
-    def traverse(self):
+    def traverse(self, myList):
         """
         Look through the data items in the node
         """
-        for i in range(self.__order - 1):
-            if(self.isEmpty() == False): # not empty visit children
-                self.children[i].traverse() # traverse all subtrees
-
-            # After getting to the bottom of the search print the keys
-            print(self.keyValuePairs)
+        for keyValue in self.keyValuePairs:
+            if self.children:
+                self.children[0].traverse(myList)
+                myList.append(keyValue.getKey())
+                self.children[1].traverse(myList)
+            else:
+                myList.append(keyValue.getKey())
         
         # Print subtree of last child
-        if(self.isEmpty() == False):
-            self.children[self.__order].traverse()          
-    
-    def search(k):
-        """
-        """
-    
+        #if(self.isLeaf() == False):
+            #self.children[0].traverse(myList)    
+
+        return myList
+
     def isEmpty(self):
         """
         return True when the node
@@ -187,10 +187,9 @@ class Btree:
     """
     def __init__(self):
         """
+        Initializes Btree data structure
         """
         self.__root  = None # entry point into the btree
-        self.__order = 3    # specifies max number of children per node 
-                            # (order - 1) = max number of data points per node
 
     def insert(self, partition):
         """
@@ -201,26 +200,68 @@ class Btree:
         
         self.__root.insert(partition) # start at top of tree and adjust to add new value
 
-        if not self.__root.isRoot: # root might have changed change
+        if not self.__root.isRoot: # root might have changed
             self.__root = self.__root.parent
 
     def traverse(self): 
         """
-        Start at root.
+        description
+            Traverses all nodes within the tree adding there keys, in order, to a list.
+        parameters
+            NONE
+        return 
+            keyList - list of all keys in order within the 
         """
-        if(self.__root != self.__root.isEmpty()):
-            self.__root.traverse()
+        keyList = []
+        if(self.__root != self.__root.isEmpty()): # check if there is a root node with keys to print
+            self.__root.traverse(keyList) # traverse the nodes starting at the root
+        
+        print (keyList)
+        return keyList # Returning list for ease of testing
 
-    def search(self, k):
+    def findElementNumber(self, elementNumber):
+        """
+        description
+            Finds the element at the specified given number otherwise throw an exception
+        parameters
+            elementNumber -  
+        return 
+            keyList - list of all keys in order within the 
+        """
+        keyList = self.traverse()
+        try:
+            print (keyList[elementNumber-1])
+            return keyList[elementNumber-1]
+        except:
+            print("Element Number is not valid")
+            return None
+
+    def traverseValueFilter(self, valueFilter, valueIndex=0):
+        """
+        description
+            Traverses all nodes within the tree only adding keys
+            of that match the value of the given filter.
+        parameters
+            valueFilter - the value you want to filter for
+            valueIndex  - optional index of the value array
+        return
+            list of al 
+        """
+        filteredList = []
+
+        return filteredList
+
+
+    def search(self, query):
         """
         Given a k, returns the k'th element in 
         the B-tree in lexicographical order. 
         If k is out-of-bounds throw an exception.
         """
-        if self.__root == self.__root.isEmpty(): # root is empty return false
-            return False
+        if self.__root == self.__root.isEmpty(): # root is empty return None
+            return None
         else:
-            return self.__root.search(k)
+            return self.__root.search(query)
 
 
 

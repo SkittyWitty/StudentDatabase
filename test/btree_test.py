@@ -266,8 +266,6 @@ class BtreeNodesTest(unittest.TestCase):
         assert startNode.parent.children[1].keyValuePairs[0].getKey() == rightKey # To the right is Maverik
 
 
-
-
     def test_splitNode(self):
         """
         Tests that the node is split properly when full
@@ -275,8 +273,7 @@ class BtreeNodesTest(unittest.TestCase):
 
     def test_isEmpty(self):
         """
-        Test discerns that the node is a leaf
-        1.
+        Test discerns that the node is empty
         """
         testBtree = BtreeNode()
         testBtree.keyValuePairs = [None, None]
@@ -290,6 +287,7 @@ class BtreeTests(unittest.TestCase):
         are set up to expected values
         """
         testBtree = Btree()
+        assert testBtree._Btree__root == None
 
 
     def test_insert_empty(self):
@@ -297,6 +295,73 @@ class BtreeTests(unittest.TestCase):
         When the BTree is empty a root node is created and 
         populated with the given partition
         """
+        testBtree = Btree()
+
+        # Set up a partition to insert
+        testKey = "Plagg"
+        testValue = 11
+        testPartition = BtreeNodePartition(testKey, testValue)
+        
+        # Call
+        testBtree.insert(testPartition)
+
+        # Assert
+        assert testBtree._Btree__root != None
+        assert testBtree._Btree__root.keyValuePairs[0].getKey() == testKey
+
+    def test_traverse_basic(self):
+        testBtree = Btree()
+
+        # Set up a partition to insert
+        testKey = "Plagg"
+        testValue = 11
+        testPartition = BtreeNodePartition(testKey, testValue)
+        
+        # Call
+        testBtree.insert(testPartition)
+        myList = testBtree.traverse()
+        assert myList == ["Plagg"]
+    
+    def test_traverse_twoTierTree(self):
+        # Set-up
+        # Creating what should be the left child
+        testBtree = Btree()
+
+        leftKey = "Applejack"
+        leftValue = 222
+        leftPartition = BtreeNodePartition(leftKey, leftValue)
+
+        # Creating what should be the middle node
+        medianKey = "Rarity"
+        medianValue = 111
+        medianPartition = BtreeNodePartition(medianKey, medianValue)
+
+        # Creating what should be the right child
+        rightKey = "Yuna"
+        rightValue = 333
+        rightPartition = BtreeNodePartition(rightKey, rightValue)
+
+        # Call
+        testBtree.insert(leftPartition)
+        testBtree.insert(medianPartition)
+        testBtree.insert(rightPartition)
+        testBtree.traverse() == [leftKey, medianKey, rightKey]
+
+
+    def test_traverse_thirdNodeAppearance(self):
+        testBtree = Btree()
+        testBtree.insert(BtreeNodePartition("Effy", 2))
+        testBtree.insert(BtreeNodePartition("Bernie", 1))
+        testBtree.insert(BtreeNodePartition("Twili", 3))
+        testBtree.insert(BtreeNodePartition("Usui", 4))
+        testBtree.insert(BtreeNodePartition("Zecora", 5))
+
+        testListOfKeys = testBtree.traverse()
+
+        print (testListOfKeys)
+
+
+
 
 
 
