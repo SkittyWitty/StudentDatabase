@@ -58,7 +58,7 @@ class BtreeNode:
         self.isRoot = isRoot # Allowed to have less than the required 
         self.__medianIndex = 1 # the index of the median value when dealing with overflow d will always be 1
 
-    def traverse(self, keyList, filter=None):
+    def traverse(self, keyList, operatorFilter, filter=None):
         """
         description:
             Visit each child and partition in the node 
@@ -71,9 +71,9 @@ class BtreeNode:
         """ 
         for index in range(0, self.__order): # Traverse all 3 possibilities of children
             if len(self.children) > index:
-                self.children[index].traverse(keyList) # continue traversing down if child is found
+                self.children[index].traverse(keyList, operatorFilter, filter) # continue traversing down if child is found
             if len(self.keyValuePairs) > index: # adding nodes keys to the list
-                if filter != None and self.keyValuePairs[index].getValue() == filter: # Optional filter
+                if filter != None and operatorFilter(self.keyValuePairs[index].getValue(), filter): # Optional filter
                     keyList.append(self.keyValuePairs[index].getKey())
                 else: # Otherwise add all keys to the list
                     keyList.append(self.keyValuePairs[index].getKey())
@@ -168,7 +168,7 @@ class BtreeNode:
             None
         """
 		# Moves median up
-        self.parent.insertKeyValues(self.keyValuePairs[self.__medianIndex])
+        self.parent.__insertKeyValues(self.keyValuePairs[self.__medianIndex])
         del self.keyValuePairs[self.__medianIndex]
 
         # Establish new right child node 
@@ -186,7 +186,6 @@ class BtreeNode:
         self.keyValuePairs = self.keyValuePairs[:1]	
         self.children = self.children[:1]
 
-
         if self.parent.children:
             index_of_new_child = len(self.parent.keyValuePairs)
             for i, child in enumerate(self.parent.children):
@@ -198,7 +197,7 @@ class BtreeNode:
         else:
             self.parent.children = [self, newRightChild]
   
-    def insertKeyValues(self, partition, index=None):
+    def __insertKeyValues(self, partition, index=None):
         """
         description
             
@@ -231,18 +230,18 @@ class BtreeNode:
         """
         if self.isEmpty():
             # Node is empty
-            self.insertKeyValues(incomingPartition)
+            self.__insertKeyValues(incomingPartition)
         elif self.__isOverflowing(): 
             # Node is full
-            self.insertKeyValues(incomingPartition)
+            self.__insertKeyValues(incomingPartition)
             if self.isRoot:
                 self.__createNewRoot()
             self.__splitNode()
-        else: # current node is not overflowing
-            # Node has room 
+        else: # current node has room
             index = self.__findIndex(incomingPartition)
+            # decide to insert partition or continue search
             if self.__isLeaf(): # insert partition
-                self.insertKeyValues(incomingPartition, index)
+                self.__insertKeyValues(incomingPartition, index)
             else: # walk down nodes via recursion
                 return self.children[index].insert(incomingPartition)
 
@@ -280,20 +279,42 @@ class Btree:
         if not self.__root.isRoot: # root might have changed
             self.__root = self.__root.parent
 
-    def traverse(self, valuefilter=None): 
+    def traverse(self, requestedOperator='==', valuefilter=None): 
         """
         description
             Traverses all nodes within the tree adding there keys, in order, to a list.
         parameters
-            valueFilter(optional) - filter values of the list
+            valueFilter(optional)        - filter values of the list
+            requestedOperator (optional) - operation that should be performed with filter value while traversing
         return 
             keyList - list of all keys in order within the 
         """
+        operatorFilter = self.__getFilterOperator(requestedOperator)
+
         keyList = []
         if(self.__root != self.__root.isEmpty()): # check if there is a root node with keys to print
-            self.__root.traverse(keyList, valuefilter) # traverse the nodes starting at the root
+            self.__root.traverse(keyList, operatorFilter, valuefilter) # traverse the nodes starting at the root
         
         return keyList 
+
+    def __getFilterOperator(comparator, selectedOperation):
+        """
+        description
+            Mapping of all filter operations.
+            # TODO: figure out this function can be added to operator class itself to keep things OO
+        params
+            comparator - what incoming value will be compared to
+            seletedOperation - what operation will be used to do the comparing
+        return 
+            a function that will filter based on user given specifications
+        """
+        operations = {'>': operator.gt,
+            '<': operator.lt,
+            '>=': operator.ge,
+            '<=': operator.le,
+            '==': operator.eq}
+
+        return operations[selectedOperation]
 
     def grabIndex(self, index):
         """

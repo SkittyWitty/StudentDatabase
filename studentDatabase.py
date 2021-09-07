@@ -38,9 +38,10 @@ class StudentDatabase:
             None
         """
         probationaryRange = 2.85 # defined GPA range of students who are on probation
-        studentsOnProbrationList = self.database.traverse(probationaryRange)
-        print(studentsOnProbrationList) # reversing list to print from back to front
-    
+        operation = '<' # less than
+        studentsOnProbrationList = self.database.traverse(probationaryRange, operation)
+        print(studentsOnProbrationList) # printing list
+
     def printPerfectGradeStudents(self):
         """
         description
@@ -53,7 +54,8 @@ class StudentDatabase:
             None
         """
         perfectGpa = 4.0 # defined as the perfect GPA
-        studentsWithPerfectGpaList = self.database.traverse(perfectGpa)
+        requestedOperation = '=='
+        studentsWithPerfectGpaList = self.database.traverse(requestedOperation, perfectGpa)
         print(studentsWithPerfectGpaList[::-1]) # reversing list to print from back to front
     
     def retrieveStudentAtPosition(self, position):
