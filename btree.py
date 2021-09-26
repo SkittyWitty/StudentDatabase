@@ -4,7 +4,9 @@ class BtreeNodePartition:
     """
     Contains the key, value pair of one partion of a BTree's node.
     To act only as an abstract class. 
-    No setters allowed as BTree balance would be disturbed by changing key/value pairs
+
+    Class protects from editing as BTree balance would be disturbed by 
+    changing key/value pairs
     """
     def __init__(self, key, value):
         self.key = key
@@ -73,9 +75,9 @@ class BtreeNode:
             if len(self.children) > index:
                 self.children[index].traverse(keyList, operatorFilter, filter) # continue traversing down if child is found
             if len(self.keyValuePairs) > index: # adding nodes keys to the list
-                if filter != None and operatorFilter(self.keyValuePairs[index].getValue(), filter): # Optional filter
+                if filter != None and operatorFilter(self.keyValuePairs[index].getValue()[0], filter): # Optional filter
                     keyList.append(self.keyValuePairs[index].getKey())
-                else: # Otherwise add all keys to the list
+                elif filter == None: # Otherwise add all keys to the list
                     keyList.append(self.keyValuePairs[index].getKey())
 
         return keyList
@@ -186,16 +188,17 @@ class BtreeNode:
         self.keyValuePairs = self.keyValuePairs[:1]	
         self.children = self.children[:1]
 
+        # parent of current node has children ensure they are in the correct order
         if self.parent.children:
-            index_of_new_child = len(self.parent.keyValuePairs)
+            indexOfNewChild = len(self.parent.keyValuePairs)
             for i, child in enumerate(self.parent.children):
                 if child == self:
-                    index_of_new_child = i + 1
+                    indexOfNewChild = i + 1
                     break
 
-            self.parent.children.insert(index_of_new_child, newRightChild)
-        else:
-            self.parent.children = [self, newRightChild]
+            self.parent.children.insert(indexOfNewChild, newRightChild)
+        else: # parent does not have children 
+            self.parent.children = [self, newRightChild] # parent adopts current node and newly created right node
   
     def __insertKeyValues(self, partition, index=None):
         """

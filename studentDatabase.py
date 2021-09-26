@@ -1,6 +1,5 @@
 from btree import Btree
 from student import Student
-import operator # used to customize the filter of the traverse
 
 class StudentDatabase:
     """
@@ -9,7 +8,7 @@ class StudentDatabase:
     def __init__(self):
         self.database = Btree()
         
-        # where redId's will begin
+        # where redId assignments will begin
         self.__lastRedId = 0
 
     def addNewStudent(self, name, gpa):
@@ -22,11 +21,11 @@ class StudentDatabase:
         return 
             None
         """
-        student = Student(name, gpa)
         self.__lastRedId = self.__lastRedId + 1
-        self.database.insert(name, student, self.__lastRedId)
+        student = Student(name, gpa, self.__lastRedId)
+        self.database.insert(student)
 
-    def printProbationaryStudnets(self):
+    def printProbationaryStudents(self):
         """
         description
             Prints out the Red IDs of students that are on probation 
@@ -39,7 +38,7 @@ class StudentDatabase:
         """
         probationaryRange = 2.85 # defined GPA range of students who are on probation
         operation = '<' # less than
-        studentsOnProbrationList = self.database.traverse(probationaryRange, operation)
+        studentsOnProbrationList = self.database.traverse(operation, probationaryRange)
         print(studentsOnProbrationList) # printing list
 
     def printPerfectGradeStudents(self):
