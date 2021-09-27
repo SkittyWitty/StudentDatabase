@@ -1,5 +1,5 @@
 from btree import Btree
-from student import Student
+from collections import namedtuple
 
 class StudentDatabase:
     """
@@ -22,8 +22,8 @@ class StudentDatabase:
             None
         """
         self.__lastRedId = self.__lastRedId + 1
-        student = Student(name, gpa, self.__lastRedId)
-        self.database.insert(student)
+        newStudent = (name, [gpa, self.__lastRedId])
+        self.database.update([newStudent])
 
     def printProbationaryStudents(self):
         """
@@ -57,7 +57,7 @@ class StudentDatabase:
         studentsWithPerfectGpaList = self.database.traverse(requestedOperation, perfectGpa)
         print(studentsWithPerfectGpaList[::-1]) # reversing list to print from back to front
     
-    def retrieveStudentAtPosition(self, position):
+    def retrieveStudentAtIndex(self, position):
         """
         description
             Retrieves a student at a given position in the list 
@@ -67,10 +67,11 @@ class StudentDatabase:
         return
             None
         """
-        studentAtGivenPosition = self.database.grabIndex(position)
-        print("Student RedID "  + studentAtGivenPosition.getRedId())
-        print("Student Name: "  + studentAtGivenPosition.getName())
-        print("Studen GPA: "    + studentAtGivenPosition.getGpa())
+        name, studentData = self.database.index(position)
+        gpa, redId = studentDatabase
+        print("Student RedID "  + redId)
+        print("Student Name: "  + name)
+        print("Studen GPA: "    + gpa)
 
 if __name__ == '__main__':
     """

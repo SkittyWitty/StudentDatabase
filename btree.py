@@ -1,39 +1,7 @@
+from collections import namedtuple
 import operator # Used to handle traverse filtering
 
-class BtreeNodePartition:
-    """
-    Contains the key, value pair of one partion of a BTree's node.
-    To act only as an abstract class. 
-
-    Class protects from editing as BTree balance would be disturbed by 
-    changing key/value pairs
-    """
-    def __init__(self, key, value):
-        self.key = key
-        self.value = value
-
-    def getKey(self):
-        """
-        description:
-            public accessor for the key
-        param
-            None
-        return
-            key that has been stored in the partition
-        """
-        return self.key
-
-    def getValue(self):
-        """
-        description:
-            public accessor for the value
-        param
-            None
-        return
-            value that has been stored in the partition
-        """
-        return self.value
-
+Partition = namedtuple('Partition', ['key', 'valueList'], defaults=['0', [None, None]])
 
 class BtreeNode:
     """
@@ -56,7 +24,7 @@ class BtreeNode:
         self.children = []
         self.parent = None
         
-        self.keyValuePairs = [] # also referred to as partitions of the node
+        self.partitionList = [] # also referred to as partitions of the node
         self.isRoot = isRoot # Allowed to have less than the required 
         self.__medianIndex = 1 # the index of the median value when dealing with overflow d will always be 1
 
@@ -71,14 +39,14 @@ class BtreeNode:
         return
             keyList (see params)
         """ 
-        for index in range(0, self.__order): # Traverse all 3 possibilities of children
+        for index in range(0, self.__order): # Traverse all 3 possibilities for children
             if len(self.children) > index:
                 self.children[index].traverse(keyList, operatorFilter, filter) # continue traversing down if child is found
-            if len(self.keyValuePairs) > index: # adding nodes keys to the list
-                if filter != None and operatorFilter(self.keyValuePairs[index].getValue()[0], filter): # Optional filter
-                    keyList.append(self.keyValuePairs[index].getKey())
+            if len(self.partitionList) > index: # adding nodes keys to the list
+                if filter != None and operatorFilter(self.partitionList[index].getValue()[0], filter): # Optional filter
+                    keyList.append(self.partitionList[index].key)
                 elif filter == None: # Otherwise add all keys to the list
-                    keyList.append(self.keyValuePairs[index].getKey())
+                    keyList.append(self.partitionList[index].key)
 
         return keyList
 
@@ -92,7 +60,7 @@ class BtreeNode:
         return 
             True when the node
         """
-        if self.keyValuePairs == []: # check for empty list
+        if self.partitionList == []: # check for empty list
             return True
         else:
             return False
@@ -132,14 +100,14 @@ class BtreeNode:
             nodes to find a place to insert itself 
         """
         # Handle case for 
-        if(len(self.keyValuePairs) == 0):
+        if(len(self.partitionList) == 0):
             return 0
 
         # If an index is not found assume it is last in the order 
-        index = len(self.keyValuePairs)
+        index = len(self.partitionList)
 
-        for i, (partition) in enumerate(self.keyValuePairs):
-            if (incomingPartition.getKey() < partition.getKey()):
+        for i, (partition) in enumerate(self.partitionList):
+            if (incomingPartition.key < partition.key):
                 index = i
                 break
 
@@ -156,7 +124,7 @@ class BtreeNode:
         return
             True if the node will be overflowing
         """
-        return self.__isLeaf() and len(self.keyValuePairs) == self.__maxKeys
+        return self.__isLeaf() and len(self.partitionList) == self.__maxKeys
 
     def __splitNode(self):
         """
@@ -170,27 +138,27 @@ class BtreeNode:
             None
         """
 		# Moves median up
-        self.parent.__insertKeyValues(self.keyValuePairs[self.__medianIndex])
-        del self.keyValuePairs[self.__medianIndex]
+        self.parent.__insertKeyValues(self.partitionList[self.__medianIndex])
+        del self.partitionList[self.__medianIndex]
 
         # Establish new right child node 
         newRightChild = BtreeNode()
         newRightChild.parent = self.parent
         # Everything on the right side of the median becomes 
-        # the new right nodes children and keyValuePairs
-        newRightChild.keyValuePairs = self.keyValuePairs[1:]
+        # the new right nodes children and partitionList
+        newRightChild.partitionList = self.partitionList[1:]
         newRightChild.children = self.children[1:]
         for child in newRightChild.children:
             child.parent = newRightChild
 
         # Everything on the left side of the median becomes
-        # current nodes new children and keyValuePairs
-        self.keyValuePairs = self.keyValuePairs[:1]	
+        # current nodes new children and partitionList
+        self.partitionList = self.partitionList[:1]	
         self.children = self.children[:1]
 
         # parent of current node has children ensure they are in the correct order
         if self.parent.children:
-            indexOfNewChild = len(self.parent.keyValuePairs)
+            indexOfNewChild = len(self.parent.partitionList)
             for i, child in enumerate(self.parent.children):
                 if child == self:
                     indexOfNewChild = i + 1
@@ -212,13 +180,13 @@ class BtreeNode:
             possible recursion to walk down the children 
             nodes to find a place to insert itself 
         """
-        if not self.keyValuePairs:
-            self.keyValuePairs.insert(0, partition)
+        if not self.partitionList:
+            self.partitionList.insert(0, partition)
         else:
             if not index:
                 index = self.__findIndex(partition)
 
-            self.keyValuePairs.insert(index, partition)
+            self.partitionList.insert(index, partition)
 
     def insert(self, incomingPartition):
         """
@@ -262,12 +230,12 @@ class Btree:
         return
             None
         """
-        self.__root  = None # entry point into the btree
+        self.__root = None # entry point into the btree
 
-    def insert(self, partition):
+    def update(self, data):
         """
         description
-            Traverses all nodes within the tree adding there keys, in order, to a list.
+            Traverses all nodes within the tree 
         parameters
             valueFilter(optional) - filter values of the list
         return 
@@ -277,10 +245,32 @@ class Btree:
             # Currently no root node add one
             self.__root = BtreeNode(True)
         
+        partition = self.__generatePartition(data)
         self.__root.insert(partition) # start at top of tree and adjust to add new value
 
         if not self.__root.isRoot: # root might have changed
             self.__root = self.__root.parent
+    
+    def __generatePartition(self, data):
+        """
+        description
+            Generate a partition to be placed inside the node
+        parameters
+            data - what is requested to be placed into the BTree
+        return 
+            Partition containing first value of data as the key
+            and all other values placed into the value list of the partition
+        """
+        # Assume first index is the key
+        newPartition = Partition(data[0])
+
+        # All values after the key are assumed to be 
+        # values and placed into partitions valueList
+        for value in data[1:]:
+            newPartition.valueList.insert(value)
+
+        return newPartition
+
 
     def traverse(self, requestedOperator='==', valuefilter=None): 
         """
@@ -319,7 +309,7 @@ class Btree:
 
         return operations[selectedOperation]
 
-    def grabIndex(self, index):
+    def index(self, indexRequest):
         """
         description 
             Given an index, returns the index of the item in 
@@ -330,10 +320,10 @@ class Btree:
             BtreeNodePartition that matches the index provided
         """
         keyList = self.traverse() # obtain a list of keys
-        if(len(keyList) > index):
-            return (keyList[index-1]) # subtract 1 to account for list indices starting at 0
+        if(len(keyList) > indexRequest):
+            return (keyList[indexRequest-1]) # subtract 1 to account for list indices starting at 0
         else:
-            raise Exception("There is no element at spot: " + index)
+            raise Exception("There is no element at spot: " + indexRequest)
 
 
 

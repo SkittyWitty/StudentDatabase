@@ -9,7 +9,7 @@ sys.path.insert(0, parentdir)
 
 from btree import Btree
 from btree import BtreeNode
-from btree import BtreeNodePartition
+from btree import Partition
 import unittest
 
 """
@@ -23,24 +23,24 @@ class BtreeNodesTest(unittest.TestCase):
     """
     def test_findIndex_returnZero(self):
         testNode = BtreeNode(True)
-        testNode.keyValuePairs = [BtreeNodePartition("Bethany", 1), BtreeNodePartition("Vlad", 2)]
-        testPartition = BtreeNodePartition("Applejack", 123)
+        testNode.keyValuePairs = [Partition("Bethany", 1), Partition("Vlad", 2)]
+        testPartition = Partition("Applejack", 123)
         index = testNode._BtreeNode__findIndex(testPartition)
 
         assert index == 0
 
     def test_findIndex_returnOne(self):
         testNode = BtreeNode(True)
-        testNode.keyValuePairs = [BtreeNodePartition("Adrian", 1), BtreeNodePartition("Marinette", 3)]
-        testPartition = BtreeNodePartition("Luca", 123)
+        testNode.keyValuePairs = [Partition("Adrian", 1), Partition("Marinette", 3)]
+        testPartition = Partition("Luca", 123)
         index = testNode._BtreeNode__findIndex(testPartition)
 
         assert index == 1
     
     def test_findIndex_returnTwo(self):
         testNode = BtreeNode(True)
-        testNode.keyValuePairs = [BtreeNodePartition("Catnoir", 2), BtreeNodePartition("Ladybug", 4)]
-        testPartition = BtreeNodePartition("Renarouge", 123)
+        testNode.keyValuePairs = [Partition("Catnoir", 2), Partition("Ladybug", 4)]
+        testPartition = Partition("Renarouge", 123)
         index = testNode._BtreeNode__findIndex(testPartition)
 
         assert index == 2
@@ -51,7 +51,7 @@ class BtreeNodesTest(unittest.TestCase):
         """
         testKey = "Min-slice"
         testValue = 123
-        testPartition = BtreeNodePartition(testKey, testValue)
+        testPartition = Partition(testKey, testValue)
         testNode = BtreeNode(True)
         testNode.insert(testPartition)
 
@@ -64,7 +64,7 @@ class BtreeNodesTest(unittest.TestCase):
         # Set-up 
         testKey = "Min-slice"
         testValue = 123
-        testPartition = BtreeNodePartition(testKey, testValue)
+        testPartition = Partition(testKey, testValue)
         testNode = BtreeNode(True)
         testNode.insert(testPartition)
 
@@ -90,7 +90,7 @@ class BtreeNodesTest(unittest.TestCase):
         """
         testKey = "Min-slice"
         testValue = 123
-        testPartition = BtreeNodePartition(testKey, testValue)
+        testPartition = Partition(testKey, testValue)
         testNode = BtreeNode(True)
         testNode.insert(testPartition)
         assert testNode.keyValuePairs[0].getKey() == testKey
@@ -103,8 +103,8 @@ class BtreeNodesTest(unittest.TestCase):
         # Creating test values
         testKey = "Min-slice"
         testValue = 123
-        testPartition = BtreeNodePartition(testKey, testValue)
-        testPartition2 = BtreeNodePartition("Nina", 454)
+        testPartition = Partition(testKey, testValue)
+        testPartition2 = Partition("Nina", 454)
         testNode = BtreeNode(True)
 
         # Insert both partitions into the node
@@ -121,17 +121,17 @@ class BtreeNodesTest(unittest.TestCase):
         # Creating what should be the left child
         leftKey = "Almond"
         leftValue = 222
-        leftPartition = BtreeNodePartition(leftKey, leftValue)
+        leftPartition = Partition(leftKey, leftValue)
 
         # Creating what should be the middle node
         medianKey = "Bethany"
         medianValue = 111
-        medianPartition = BtreeNodePartition(medianKey, medianValue)
+        medianPartition = Partition(medianKey, medianValue)
 
         # Creating what should be the right child
         rightKey = "Chloe"
         rightValue = 333
-        rightPartition = BtreeNodePartition(rightKey, rightValue)
+        rightPartition = Partition(rightKey, rightValue)
 
         # Call
         startNode = BtreeNode(True) # future left node starts off as the root node
@@ -157,26 +157,26 @@ class BtreeNodesTest(unittest.TestCase):
 
     def test_insert_thirdNodeAppearance(self):
         firstRoot = BtreeNode(True)
-        firstRoot.insert(BtreeNodePartition("Effy", 2))
+        firstRoot.insert(Partition("Effy", 2))
         assert firstRoot.keyValuePairs[0].getKey() == "Effy"
 
-        firstRoot.insert(BtreeNodePartition("Bernie", 1))
+        firstRoot.insert(Partition("Bernie", 1))
         assert firstRoot.keyValuePairs[0].getKey() == "Bernie"
         assert firstRoot.keyValuePairs[1].getKey() == "Effy"
 
-        firstRoot.insert(BtreeNodePartition("Twili", 3))
+        firstRoot.insert(Partition("Twili", 3))
         # a new root has been found kinged
         newRoot = firstRoot.parent
         assert newRoot.keyValuePairs[0].getKey() == "Effy"
         assert newRoot.children[0].keyValuePairs[0].getKey() == "Bernie"
         assert newRoot.children[1].keyValuePairs[0].getKey() == "Twili"
 
-        newRoot.insert(BtreeNodePartition("Usui", 4))
+        newRoot.insert(Partition("Usui", 4))
         # Usui joins Twili
         assert newRoot.children[1].keyValuePairs[0].getKey() == "Twili"
         assert newRoot.children[1].keyValuePairs[1].getKey() == "Usui"
 
-        newRoot.insert(BtreeNodePartition("Zecora", 5))
+        newRoot.insert(Partition("Zecora", 5))
         # Still expecting same root
         assert newRoot.keyValuePairs[0].getKey() == "Effy"
         # check out new child
@@ -191,17 +191,17 @@ class BtreeNodesTest(unittest.TestCase):
         # Creating what should be the left child
         leftKey = "Eminem"
         leftValue = 222
-        leftPartition = BtreeNodePartition(leftKey, leftValue)
+        leftPartition = Partition(leftKey, leftValue)
 
         # Creating what should be the middle node
         medianKey = "Goose"
         medianValue = 111
-        medianPartition = BtreeNodePartition(medianKey, medianValue)
+        medianPartition = Partition(medianKey, medianValue)
 
         # Creating what should be the right child
         rightKey = "Maverik"
         rightValue = 333
-        rightPartition = BtreeNodePartition(rightKey, rightValue)
+        rightPartition = Partition(rightKey, rightValue)
 
         # Call
         startNode = BtreeNode(True) # future left node starts off as the root node
@@ -233,17 +233,17 @@ class BtreeNodesTest(unittest.TestCase):
         # Creating what should be the left child
         leftKey = "Applejack"
         leftValue = 222
-        leftPartition = BtreeNodePartition(leftKey, leftValue)
+        leftPartition = Partition(leftKey, leftValue)
 
         # Creating what should be the middle node
         medianKey = "Rarity"
         medianValue = 111
-        medianPartition = BtreeNodePartition(medianKey, medianValue)
+        medianPartition = Partition(medianKey, medianValue)
 
         # Creating what should be the right child
         rightKey = "Yuna"
         rightValue = 333
-        rightPartition = BtreeNodePartition(rightKey, rightValue)
+        rightPartition = Partition(rightKey, rightValue)
 
         # Call
         startNode = BtreeNode(True) # future left node starts off as the root node
@@ -295,7 +295,7 @@ class BtreeTests(unittest.TestCase):
         # Set up a partition to insert
         testKey = "Plagg"
         testValue = 11
-        testPartition = BtreeNodePartition(testKey, testValue)
+        testPartition = Partition(testKey, testValue)
         
         # Call
         testBtree.insert(testPartition)
@@ -310,7 +310,7 @@ class BtreeTests(unittest.TestCase):
         # Set up a partition to insert
         testKey = "Plagg"
         testValue = 11
-        testPartition = BtreeNodePartition(testKey, testValue)
+        testPartition = Partition(testKey, testValue)
         
         # Call
         testBtree.insert(testPartition)
@@ -324,17 +324,17 @@ class BtreeTests(unittest.TestCase):
 
         leftKey = "Applejack"
         leftValue = 222
-        leftPartition = BtreeNodePartition(leftKey, leftValue)
+        leftPartition = Partition(leftKey, leftValue)
 
         # Creating what should be the middle node
         medianKey = "Rarity"
         medianValue = 111
-        medianPartition = BtreeNodePartition(medianKey, medianValue)
+        medianPartition = Partition(medianKey, medianValue)
 
         # Creating what should be the right child
         rightKey = "Yuna"
         rightValue = 333
-        rightPartition = BtreeNodePartition(rightKey, rightValue)
+        rightPartition = Partition(rightKey, rightValue)
 
         # Call
         testBtree.insert(leftPartition)
@@ -346,12 +346,12 @@ class BtreeTests(unittest.TestCase):
 
     def test_traverse_thirdNodeAppearance(self):
         testBtree = Btree()
-        testBtree.insert(BtreeNodePartition("Effy", 2))
-        testBtree.insert(BtreeNodePartition("Bernie", 1))
-        testBtree.insert(BtreeNodePartition("Twili", 3))
-        testBtree.insert(BtreeNodePartition("Usui", 4))
-        testBtree.insert(BtreeNodePartition("Zecora", 5))
-        testBtree.insert(BtreeNodePartition("Catnoir", 45))
+        testBtree.insert(Partition("Effy", 2))
+        testBtree.insert(Partition("Bernie", 1))
+        testBtree.insert(Partition("Twili", 3))
+        testBtree.insert(Partition("Usui", 4))
+        testBtree.insert(Partition("Zecora", 5))
+        testBtree.insert(Partition("Catnoir", 45))
 
         testListOfKeys = testBtree.traverse()
 
