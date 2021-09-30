@@ -40,36 +40,36 @@ class StudentClassTests(unittest.TestCase):
         assert(redId == 5)
         pass
 
-    # def test_printPerfectGradeStudents(self):
-    #     """
-    #     Checks that 4.0 is the GPA being passed to filter
-    #     Checks that requested operation is =
-    #        - Assumed that there is nothing above a 4.0 at SDSU
-    #     """
-    #     # Use a dictionary as a makeshift database data structure for testing
-    #     studentDatabase = StudentDatabase()
-    #     studentDatabase.database = dict()
+    def test_printPerfectGradeStudents(self):
+        """
+        Checks that 4.0 is the GPA being passed to filter
+        Checks that requested operation is =
+           - Assumed that there is nothing above a 4.0 at SDSU
+        """
+        # Use a dictionary as a makeshift database data structure for testing
+        studentDatabase = StudentDatabase()
+        studentDatabase.database = dict()
 
-    #     # Use mock to mock the traverse that returns a filtered list
-    #     #testStudentDatabase.printPerfectGradeStudents()
+        # Use mock to mock the traverse that returns a filtered list
+        #testStudentDatabase.printPerfectGradeStudents()
         
 
 
-    # def test_printProbationaryStudents(self):
+    def test_printProbationaryStudents(self):
 
-    #     # Use a dictionary as a makeshift database data structure for testing
-    #     studentDatabase = StudentDatabase()
-    #     studentDatabase.database = dict()
+        # Use a dictionary as a makeshift database data structure for testing
+        studentDatabase = StudentDatabase()
+        studentDatabase.database = dict()
 
-    #     # Use mock to mock the traverse that returns a filtered list
-    #     #testStudentDatabase.printProbationaryStudents()
+        # Use mock to mock the traverse that returns a filtered list
+        #testStudentDatabase.printProbationaryStudents()
         
-    # def test_retrieveStudentAtIndex(self):
-    #     # Use a dictionary as a makeshift database data structure for testing
-    #     studentDatabase = StudentDatabase()
-    #     studentDatabase.database = dict()
+    def test_retrieveStudentAtIndex(self):
+        # Use a dictionary as a makeshift database data structure for testing
+        studentDatabase = StudentDatabase()
+        studentDatabase.database = dict()
 
-    #     # Use mock to mock the traverse that returns a filtered list
-    #     #testStudentDatabase.retrieveStudentAtPosition(1)
+        # Use mock to mock the traverse that returns a filtered list
+        #testStudentDatabase.retrieveStudentAtPosition(1)
         
     

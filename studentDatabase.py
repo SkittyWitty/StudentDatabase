@@ -67,7 +67,7 @@ class StudentDatabase:
         return
             None
         """
-        name, studentData = self.database.index(position)
+        name, studentData = self.database.get(position)
         gpa, redId = studentDatabase
         print("Student RedID "  + redId)
         print("Student Name: "  + name)

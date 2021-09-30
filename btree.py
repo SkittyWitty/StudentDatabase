@@ -1,5 +1,6 @@
-from collections import namedtuple
+from collections import UserDict, namedtuple
 import operator # Used to handle traverse filtering
+import collections
 
 Partition = namedtuple('Partition', ['key', 'valueList'], defaults=['0', [None, None]])
 
@@ -216,7 +217,7 @@ class BtreeNode:
             else: # walk down nodes via recursion
                 return self.children[index].insert(incomingPartition)
 
-class Btree:
+class Btree(UserDict):
     """
     BTree data structure with a fixed order of 3.
     Sorts both in lexicographical and numerical order
@@ -230,7 +231,28 @@ class Btree:
         return
             None
         """
+        self.__totalPartitions = 0 # keeps track of the length of the BTree
+
         self.__root = None # entry point into the btree
+
+#region Common dictionary interface - Implemented
+    def __len__(self):
+        """
+        len()
+        :return: Number of items in the BTree 
+        """
+        return self.__totalPartitions
+
+    def __next__(self):
+        pass
+
+    def __iter__(self):
+        """
+        External iterator for searching through the BTree 
+        """
+        whoDeservesBetter = ['cat', 'noir']
+        for who in whoDeservesBetter:
+            yield who
 
     def update(self, data):
         """
@@ -250,6 +272,89 @@ class Btree:
 
         if not self.__root.isRoot: # root might have changed
             self.__root = self.__root.parent
+
+        # Partition has been added keep track of the length 
+        self.__totalPartitions = self.__totalPartitions + 1
+
+    def values(self):
+        """
+        Return a new view of the dictionary’s values. 
+        
+        returns an iterator over just the values.
+
+        This is the toArray() method
+        """
+        pass
+
+    def get(self, key):
+        """
+        description 
+            Given an index, returns the index of the item in 
+            the B-tree in order. If index is out-of-bounds throws an exception.
+        parameters
+            index - list item number to retrieve
+        return
+            BtreeNodePartition that matches the index provided
+        """
+        keyList = self.traverse() # obtain a list of keys
+        if(len(keyList) > key):
+            return (keyList[key-1]) # subtract 1 to account for list indices starting at 0
+        else:
+            raise Exception("There is no element at spot: " + key)
+
+    def __reversed__(self):
+        """
+        reversed()
+        :return: reverse iterator over the keys of the dictionary. Shortcut for reversed(d.keys()).
+        """
+        raise RuntimeError("reversed iterator is not implemented")
+#endRegion
+
+#region Common dictionary interface - Not Implemented/Supported
+    def __list__(self):
+        """
+        list()
+        :return: a list of all the keys used in the dictionary d.
+        """
+        raise RuntimeError("return a list of all elments not implemented")
+
+    def setdefault(self, key, default):
+        """
+        setdefault
+        If key is in the dictionary, return its value. 
+        If not, insert key with a value of default and return default. default defaults to None.
+        """
+        raise RuntimeError("return a list of all elments not implemented")
+
+    def clear(self):
+        """
+        clear
+        Remove all items from the BTree.
+        """
+        raise RuntimeError("clearing of Btree not implemented")
+
+    def copy(self):
+        """
+        copy
+        Return a shallow copy of the BTree.
+        """
+        raise RuntimeError("copying of Btree not implemented")
+
+    def pop(self, s = None):
+        """
+        Function to stop pop from BTree
+        """
+        raise RuntimeError("Deletion not allowed")
+         
+    def popitem(self, s = None):
+        """
+        Function to stop popitem from BTree
+        """
+        raise RuntimeError("Deletion not allowed")
+
+
+#endregion
+
     
     def __generatePartition(self, data):
         """
@@ -275,6 +380,7 @@ class Btree:
     def traverse(self, requestedOperator='==', valuefilter=None): 
         """
         description
+            Internal Iterator that intakes a search strategy 
             Traverses all nodes within the tree adding there keys, in order, to a list.
         parameters
             valueFilter(optional)        - filter values of the list
@@ -308,23 +414,6 @@ class Btree:
             '==': operator.eq}
 
         return operations[selectedOperation]
-
-    def index(self, indexRequest):
-        """
-        description 
-            Given an index, returns the index of the item in 
-            the B-tree in order. If index is out-of-bounds throws an exception.
-        parameters
-            index - list item number to retrieve
-        return
-            BtreeNodePartition that matches the index provided
-        """
-        keyList = self.traverse() # obtain a list of keys
-        if(len(keyList) > indexRequest):
-            return (keyList[indexRequest-1]) # subtract 1 to account for list indices starting at 0
-        else:
-            raise Exception("There is no element at spot: " + indexRequest)
-
 
 
 
