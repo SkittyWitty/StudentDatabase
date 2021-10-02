@@ -1,4 +1,6 @@
 
+from collections import namedtuple
+Partition = namedtuple('Partition', ['key', 'value1', 'value2'], defaults=[0, None, None])
 
 class BtreeNode:
     """
@@ -40,12 +42,49 @@ class BtreeNode:
             if len(self.children) > index:
                 self.children[index].traverse(keyList, operatorFilter, filter) # continue traversing down if child is found
             if len(self.partitionList) > index: # adding nodes keys to the list
-                if filter != None and operatorFilter(self.partitionList[index].getValue()[0], filter): # Optional filter
+                if filter != None and operatorFilter(self.partitionList[index].value1, filter): # Optional filter
                     keyList.append(self.partitionList[index].key)
                 elif filter == None: # Otherwise add all keys to the list
                     keyList.append(self.partitionList[index].key)
 
         return keyList
+
+    def find(self, key):
+        """
+        description:
+            Visit each child and partition in the node 
+            adding each key visited to a list
+        param:
+            keyList -   list of all keys that will be added to
+                        each recursive call
+        return
+            keyList (see params)
+        """ 
+        #Check if current Node contains the key in any of it's partitions
+        # foundPartition = self.partitionCheck(key)
+        # if(foundPartition != None):
+        #     return foundPartition
+        # else:
+
+        if(key == self.partitionList[0].key):
+            return self.partitionList[0]
+        if(key == self.partitionList[1].key):
+            return self.partitionList[1]
+
+
+        if(key > self.partitionList[1].key): # go right
+            return self.children[2].find(key)
+        elif(key > self.partitionList[0].key and key < self.partitionList[1]): # go down the middle
+            return self.children[1].find(key)
+        else:
+            return self.children[0].find(key)
+
+    def partitionCheck(self, key):
+        for partition in self.partitionList:
+            if (partition.key == key): # key was found return partition that contains it
+                return partition
+        
+        return None
 
     def isEmpty(self):
         """

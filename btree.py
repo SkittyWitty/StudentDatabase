@@ -1,11 +1,10 @@
 from collections.abc import MutableMapping
-from collections import namedtuple
+
 
 from btreeNode import BtreeNode
-
+from btreeNode import Partition
 import operator # Used to handle traverse filtering
 
-Partition = namedtuple('Partition', ['key', 'value1', 'value2'], defaults=['0', None, None])
 
 class Btree(MutableMapping):
 # region Common dictionary interface
@@ -28,7 +27,7 @@ class Btree(MutableMapping):
 
     def __getitem__(self, key):
         keyList = self.traverse() # obtain a list of keys
-        if(len(keyList) > key):
+        if(key in keyList):
             return (keyList[key-1]) # subtract 1 to account for list indices starting at 0
         else:
             raise Exception("There is no element at spot: " + key)

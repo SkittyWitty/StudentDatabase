@@ -23,14 +23,11 @@ class BtreeTest(TestCase):
         assert issubclass(Btree, MutableMapping)
 
 # region mutable mapping interface tests
-    def test_init_success(self):
-        pass
-
     def test_get_length(self):
         testBtree = Btree({
-            "Destruction": "Cat Noir",
-            "Creation": "Ladybug",
-            "Illusion": "Rena Rouge"
+            "Cat Noir" : ["Destruction", "Time"],
+            "Ladybug" : ["Creation", "Multiplication"],
+            "Rena Rouge" : ["Illusion", "Creation" ]
         })
         btreeLength = len(testBtree)
         assert btreeLength == 3
@@ -41,14 +38,14 @@ class BtreeTest(TestCase):
         are set up to expected values
         """
         testBtree = Btree({
-            "Ladybug" : "Creation",
-            "Rena Rouge" : "Illusion",
-            "Cat Noir" : "Destruction"
+            "Cat Noir" : ["Destruction", "Time"],
+            "Ladybug" : ["Creation", "Multiplication"],
+            "Rena Rouge" : ["Illusion", "Creation" ]
         })
-        assert testBtree._Btree__root == None
-        assert testBtree.get("Destruction") == "Cat Noir"
-        assert testBtree.get("Creation") == "Ladybug"
-        assert testBtree.get("Illusion") == "Rena Rouge"
+        assert testBtree._Btree__root != None
+        assert testBtree.get("Cat Noir") == ["Destruction", "Time"]
+        assert testBtree.get("Ladybug") == ["Creation", "Multiplication"]
+        assert testBtree.get("Rena Rouge") == ["Illusion", "Creation" ]
 
     def test_generatePartition(self):
         """

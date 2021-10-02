@@ -23,7 +23,7 @@ class BtreeNodeTest(unittest.TestCase):
     """
     def test_findIndex_returnZero(self):
         testNode = BtreeNode(True)
-        testNode.keyValuePairs = [Partition("Bethany", 1), Partition("Vlad", 2)]
+        testNode.partitionList = [Partition("Bethany", 1), Partition("Vlad", 2)]
         testPartition = Partition("Applejack", 123)
         index = testNode._BtreeNode__findIndex(testPartition)
 
@@ -31,7 +31,7 @@ class BtreeNodeTest(unittest.TestCase):
 
     def test_findIndex_returnOne(self):
         testNode = BtreeNode(True)
-        testNode.keyValuePairs = [Partition("Adrian", 1), Partition("Marinette", 3)]
+        testNode.partitionList = [Partition("Adrian", 1), Partition("Marinette", 3)]
         testPartition = Partition("Luca", 123)
         index = testNode._BtreeNode__findIndex(testPartition)
 
@@ -39,7 +39,7 @@ class BtreeNodeTest(unittest.TestCase):
     
     def test_findIndex_returnTwo(self):
         testNode = BtreeNode(True)
-        testNode.keyValuePairs = [Partition("Catnoir", 2), Partition("Ladybug", 4)]
+        testNode.partitionList = [Partition("Catnoir", 2), Partition("Ladybug", 4)]
         testPartition = Partition("Renarouge", 123)
         index = testNode._BtreeNode__findIndex(testPartition)
 
@@ -57,7 +57,7 @@ class BtreeNodeTest(unittest.TestCase):
 
         assert testNode.children == []
         assert testNode.parent == None
-        assert testNode.keyValuePairs[0] == testPartition
+        assert testNode.partitionList[0] == testPartition
         assert testNode._BtreeNode__order == 3
 
     def test_createNewRoot(self):
@@ -81,7 +81,7 @@ class BtreeNodeTest(unittest.TestCase):
         there are more than 3 key value pairs
         """
         testBtree = BtreeNode()
-        testBtree.keyValuePairs = [(1,1),(1,1)]
+        testBtree.partitionList = [(1,1),(1,1)]
         assert testBtree._BtreeNode__isOverflowing() == True
 
     def test_insert_isEmpty(self):
@@ -93,7 +93,7 @@ class BtreeNodeTest(unittest.TestCase):
         testPartition = Partition(testKey, testValue)
         testNode = BtreeNode(True)
         testNode.insert(testPartition)
-        assert testNode.keyValuePairs[0].getKey() == testKey
+        assert testNode.partitionList[0].key == testKey
 
     def test_insert_isHalfull(self):
         """
@@ -111,7 +111,7 @@ class BtreeNodeTest(unittest.TestCase):
         testNode.insert(testPartition)
         testNode.insert(testPartition2)
 
-        assert testNode.keyValuePairs == [testPartition, testPartition2]
+        assert testNode.partitionList == [testPartition, testPartition2]
 
     def test_insert_incomingIsGreatest(self):
         """
@@ -143,12 +143,47 @@ class BtreeNodeTest(unittest.TestCase):
         # median Node should become the new root 
         assert startNode.parent.isRoot == True
         # startNode should now have median as it's parent
-        assert startNode.parent.keyValuePairs[0].getKey() == medianKey
+        assert startNode.parent.partitionList[0].key == medianKey
 
         # Now that parent is confirmed to be Bethany check 
         newRoot = startNode.parent
-        assert newRoot.children[0].keyValuePairs[0].getKey() == leftKey  # To the left is Almond
-        assert newRoot.children[1].keyValuePairs[0].getKey() == rightKey # To the right is Chloe
+        assert newRoot.children[0].partitionList[0].key == leftKey  # To the left is Almond
+        assert newRoot.children[1].partitionList[0].key == rightKey # To the right is Chloe
+
+
+    def setup(self):
+        leftKey = "Almond"
+        leftValue = 222
+        leftPartition = Partition(leftKey, leftValue)
+
+        # Creating what should be the middle node
+        medianKey = "Bethany"
+        medianValue = 111
+        medianPartition = Partition(medianKey, medianValue)
+
+        # Creating what should be the right child
+        rightKey = "Chloe"
+        rightValue = 333
+        rightPartition = Partition(rightKey, rightValue)
+
+        # Call
+        startNode = BtreeNode(True) # future left node starts off as the root node
+        startNode.insert(leftPartition)
+        startNode.insert(medianPartition)
+        startNode.insert(rightPartition)
+
+        return startNode
+
+    def test_find(self):
+        """
+        Find and returns the parition with the requested key 
+        or None if no parition with that key exists
+        """
+        startNode = self.setup()
+        result = startNode.find("Chloe")
+
+        print("hi")
+
 
     def test_insert_fullTreeCopiesChildren(self):
         """
@@ -158,29 +193,29 @@ class BtreeNodeTest(unittest.TestCase):
     def test_insert_thirdNodeAppearance(self):
         firstRoot = BtreeNode(True)
         firstRoot.insert(Partition("Effy", 2))
-        assert firstRoot.keyValuePairs[0].getKey() == "Effy"
+        assert firstRoot.partitionList[0].key == "Effy"
 
         firstRoot.insert(Partition("Bernie", 1))
-        assert firstRoot.keyValuePairs[0].getKey() == "Bernie"
-        assert firstRoot.keyValuePairs[1].getKey() == "Effy"
+        assert firstRoot.partitionList[0].key == "Bernie"
+        assert firstRoot.partitionList[1].key == "Effy"
 
         firstRoot.insert(Partition("Twili", 3))
         # a new root has been found kinged
         newRoot = firstRoot.parent
-        assert newRoot.keyValuePairs[0].getKey() == "Effy"
-        assert newRoot.children[0].keyValuePairs[0].getKey() == "Bernie"
-        assert newRoot.children[1].keyValuePairs[0].getKey() == "Twili"
+        assert newRoot.partitionList[0].key == "Effy"
+        assert newRoot.children[0].partitionList[0].key == "Bernie"
+        assert newRoot.children[1].partitionList[0].key == "Twili"
 
         newRoot.insert(Partition("Usui", 4))
         # Usui joins Twili
-        assert newRoot.children[1].keyValuePairs[0].getKey() == "Twili"
-        assert newRoot.children[1].keyValuePairs[1].getKey() == "Usui"
+        assert newRoot.children[1].partitionList[0].key == "Twili"
+        assert newRoot.children[1].partitionList[1].key == "Usui"
 
         newRoot.insert(Partition("Zecora", 5))
         # Still expecting same root
-        assert newRoot.keyValuePairs[0].getKey() == "Effy"
+        assert newRoot.partitionList[0].key == "Effy"
         # check out new child
-        assert newRoot.children[2].keyValuePairs[0].getKey() == "Zecora"
+        assert newRoot.children[2].partitionList[0].key == "Zecora"
 
 
     def test_insert_incomingIsMedian(self):
@@ -206,10 +241,10 @@ class BtreeNodeTest(unittest.TestCase):
         # Call
         startNode = BtreeNode(True) # future left node starts off as the root node
         startNode.insert(leftPartition)
-        assert startNode.keyValuePairs[0].getKey() == leftKey
+        assert startNode.partitionList[0].key == leftKey
 
         startNode.insert(rightPartition) # inserting right partition first
-        assert startNode.keyValuePairs[1].getKey() == rightKey
+        assert startNode.partitionList[1].key == rightKey
 
         startNode.insert(medianPartition)
 
@@ -217,17 +252,17 @@ class BtreeNodeTest(unittest.TestCase):
         # median Node should become the new root 
         assert startNode.parent.isRoot == True
         # startNode should now have median as it's parent
-        assert startNode.parent.keyValuePairs[0].getKey() == medianKey
+        assert startNode.parent.partitionList[0].key == medianKey
 
         # Now that parent is confirmed to be Goose check 
         newRoot = startNode.parent
-        assert newRoot.children[0].keyValuePairs[0].getKey() == leftKey  # To the left is Eminem
-        assert newRoot.children[1].keyValuePairs[0].getKey() == rightKey # To the right is Maverik
+        assert newRoot.children[0].partitionList[0].key == leftKey  # To the left is Eminem
+        assert newRoot.children[1].partitionList[0].key == rightKey # To the right is Maverik
 
     def test_insert_incomingIsLeastest(self):
         """
         Test insert when node is full and incoming parition will be the lesser value
-        out of all current keyValuePairs
+        out of all current partitionList
         """
         # Set-up
         # Creating what should be the left child
@@ -248,29 +283,29 @@ class BtreeNodeTest(unittest.TestCase):
         # Call
         startNode = BtreeNode(True) # future left node starts off as the root node
         startNode.insert(medianPartition)
-        assert startNode.keyValuePairs[0].getKey() == medianKey #added successfully
+        assert startNode.partitionList[0].key == medianKey #added successfully
 
         startNode.insert(rightPartition) # inserting right partition first
-        assert startNode.keyValuePairs[1].getKey() == rightKey #added successfully
+        assert startNode.partitionList[1].key == rightKey #added successfully
 
         startNode.insert(leftPartition)
 
         # Assert
         # startNode becomes Applejack which is the left most node now
         assert startNode.isRoot == False
-        assert startNode.keyValuePairs[0].getKey() == leftKey
+        assert startNode.partitionList[0].key == leftKey
 
         # Check that parent is Rarity
-        assert startNode.parent.keyValuePairs[0].getKey() == medianKey  # To the left is Eminem
+        assert startNode.parent.partitionList[0].key == medianKey  # To the left is Eminem
         
         # Check that Rarity has Applejack as left child Yuna as right child
-        assert startNode.parent.children[0].keyValuePairs[0].getKey() == leftKey # To the right is Maverik
-        assert startNode.parent.children[1].keyValuePairs[0].getKey() == rightKey # To the right is Maverik
+        assert startNode.parent.children[0].partitionList[0].key == leftKey # To the right is Maverik
+        assert startNode.parent.children[1].partitionList[0].key == rightKey # To the right is Maverik
 
     def test_isEmpty(self):
         """
         Test discerns that the node is empty
         """
         testBtree = BtreeNode()
-        testBtree.keyValuePairs = []
+        testBtree.partitionList = []
         assert testBtree.isEmpty() == True
