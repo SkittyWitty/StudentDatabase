@@ -5,10 +5,9 @@
 
 from btree import Partition
 
-
-def orderByName(self, tuple: Partition):
+def orderByName(incomingPartition, currentPartition):
+    return incomingPartition.value1 < currentPartition.value2
     
-    pass
 
-def orderByGps(self, tuple: Partition):
-    pass
+def orderByGpa(incomingPartition, currentPartition):
+    return incomingPartition.value2 < currentPartition.value2

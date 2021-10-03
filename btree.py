@@ -1,6 +1,7 @@
 from collections.abc import MutableMapping
 
 from btreeNode import BtreeNode
+from btreeNode import orderByKey
 from btreeNode import Partition
 import operator # Used to handle traverse filtering
 
@@ -11,7 +12,7 @@ class Btree(MutableMapping):
     BTree data structure with a fixed order of 3.
     Sorts both in lexicographical and numerical order
     """
-    def __init__(self, data=()):
+    def __init__(self, data=(), orderingStrategy=orderByKey):
         """
         description
             Initializes Btree data structure by starting it at the root.
@@ -22,6 +23,7 @@ class Btree(MutableMapping):
         """
         self.__totalPartitions = 0 # keeps track of the length of the BTree
         self.__root = None # entry point into the btree
+        self.__orderingStrategy = orderingStrategy
         self.update(data)
 
     def __getitem__(self, key):
@@ -42,7 +44,7 @@ class Btree(MutableMapping):
         """
         if not self.__root:
             # Currently no root node? Create one
-            self.__root = BtreeNode(True)
+            self.__root = BtreeNode(True, self.__orderingStrategy)
         
         partition = self.__generatePartition(key, value)
         self.__root.insert(partition) # insertion begins at the top of the tree allow Btree Node to sort
@@ -61,25 +63,6 @@ class Btree(MutableMapping):
 
         for item in self.__yieldNext(currentNode):
             yield item.key
-
-    def __yieldNext(self, currentNode):
-        for index in range(0, 3): # Traverse all 3 possibilities for children
-            if len(currentNode.children) > index:
-                yield from self.__yieldNext(currentNode.children[index]) # continue traversing down if child is found
-            if len(currentNode.partitionList) > index: # adding nodes keys to the list
-                yield currentNode.partitionList[index]
-
-    def getReverse(self):
-        reverseList = []
-        self.reverse(self.__root, reverseList)  
-        return reverseList
-
-    def reverse(self, currentNode, reverseList):
-        for index in range(2, -1, -1): # Traverse all 3 possibilities for children
-            if len(currentNode.partitionList) > index: # adding nodes keys to the list
-                reverseList.append(currentNode.partitionList[index])
-            if len(currentNode.children) > index:
-                self.reverse(currentNode.children[index], reverseList) # continue traversing down if child is found
 
     def __len__(self):
         """
@@ -109,7 +92,34 @@ class Btree(MutableMapping):
             raise Exception("BTree must requires 2 value items. No more no less.")
 
         return newPartition
+
+    def __yieldNext(self, currentNode):
+        """
+        Yield's as the Btree is traverse in-order
+        """
+        for index in range(0, 3): # Traverse all 3 possibilities for children
+            if len(currentNode.children) > index:
+                yield from self.__yieldNext(currentNode.children[index]) # "yield from" will await what is yielded from the next function call
+            if len(currentNode.partitionList) > index: 
+                yield currentNode.partitionList[index] # yield returns the current partition
+
+    def __reverse(self, currentNode, reverseList):
+        for index in range(2, -1, -1): # Reverse begins looking at the last most child and partition
+            if len(currentNode.partitionList) > index:
+                reverseList.append(currentNode.partitionList[index]) # adding nodes keys to the list prior to searching for more
+            if len(currentNode.children) > index:
+                self.__reverse(currentNode.children[index], reverseList) # continue traversing down if child is found
+
 #end region 
+
+# region - added functionaility for assignment
+    def getReverse(self):
+        """
+        An internal iterator that will return a reverse list of partitions within the Btree
+        """
+        reverseList = []
+        self.__reverse(self.__root, reverseList)  
+        return reverseList
 
     # Internal traverse
     def traverse(self, requestedOperator='==', valuefilter=None): 
@@ -149,7 +159,7 @@ class Btree(MutableMapping):
             '==': operator.eq}
 
         return operations[selectedOperation]
-
+#end region
 
 
 

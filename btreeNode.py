@@ -1,13 +1,18 @@
 
 from collections import namedtuple
+
+
 Partition = namedtuple('Partition', ['key', 'value1', 'value2'], defaults=[0, None, None])
+
+def orderByKey(incomingPartition, currentPartition):
+    return incomingPartition.key < currentPartition.key
 
 class BtreeNode:
     """
     Node in a B-tree of order 3. 
     Meaning that (order - 1) = 2 data items will be allowed in the node.
     """
-    def __init__(self, isRoot=False):
+    def __init__(self, isRoot=False, orderingStrategy=orderByKey):
         """
         description
             initializes the BtreeNode by creating an empty node
@@ -26,6 +31,9 @@ class BtreeNode:
         self.partitionList = [] # also referred to as partitions of the node
         self.isRoot = isRoot # Allowed to have less than the required 
         self.__medianIndex = 1 # the index of the median value when dealing with overflow d will always be 1
+
+        # Default ordering strategy is to order by key
+        self.orderingStrategy = orderingStrategy
 
     def traverse(self, keyList, operatorFilter, filter=None):
         """
@@ -67,7 +75,6 @@ class BtreeNode:
         Converts given partition to a string
         """
         partition = self.partitionList[index]
-
         return str(partition.key) + ": " + str(partition.value1) + ", "+ str(partition.value2)
 
     def find(self, key):
@@ -81,12 +88,6 @@ class BtreeNode:
         return
             keyList (see params)
         """ 
-        #Check if current Node contains the key in any of it's partitions
-        # foundPartition = self.partitionCheck(key)
-        # if(foundPartition != None):
-        #     return foundPartition
-        # else:
-
         # Find the first key greater than or equal to k
         index = 0
         while (index < len(self.partitionList) and key > self.partitionList[index].key):
@@ -103,13 +104,6 @@ class BtreeNode:
         # Go to the appropriate child
         return self.children[index].find(key)
  
-
-    def partitionCheck(self, key):
-        for partition in self.partitionList:
-            if (partition.key == key): # key was found return partition that contains it
-                return partition
-        
-        return None
 
     def isEmpty(self):
         """
@@ -146,7 +140,7 @@ class BtreeNode:
         New root is initialized with no key value pairs
         """
         self.isRoot = False # current node is not the root
-        self.parent = BtreeNode(True) # current nodes parent is the new root
+        self.parent = BtreeNode(True, self.orderingStrategy) # current nodes parent is the new root
 
     def __findIndex(self, incomingPartition):
         """
@@ -168,7 +162,7 @@ class BtreeNode:
         index = len(self.partitionList)
 
         for i, (partition) in enumerate(self.partitionList):
-            if (incomingPartition.key < partition.key):
+            if self.orderingStrategy(incomingPartition, partition):
                 index = i
                 break
 
@@ -202,7 +196,7 @@ class BtreeNode:
         del self.partitionList[self.__medianIndex]
 
         # Establish new right child node 
-        newRightChild = BtreeNode()
+        newRightChild = BtreeNode(False, self.orderingStrategy)
         newRightChild.parent = self.parent
 
         # Everything on the right side of the median becomes 
