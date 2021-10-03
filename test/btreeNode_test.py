@@ -153,18 +153,15 @@ class BtreeNodeTest(unittest.TestCase):
 
     def setup(self):
         leftKey = "Almond"
-        leftValue = 222
-        leftPartition = Partition(leftKey, leftValue)
+        leftPartition = Partition(leftKey, 111, 1)
 
         # Creating what should be the middle node
         medianKey = "Bethany"
-        medianValue = 111
-        medianPartition = Partition(medianKey, medianValue)
+        medianPartition = Partition(medianKey, 222, 2)
 
         # Creating what should be the right child
         rightKey = "Chloe"
-        rightValue = 333
-        rightPartition = Partition(rightKey, rightValue)
+        rightPartition = Partition(rightKey, 333, 3)
 
         # Call
         startNode = BtreeNode(True) # future left node starts off as the root node
@@ -172,17 +169,37 @@ class BtreeNodeTest(unittest.TestCase):
         startNode.insert(medianPartition)
         startNode.insert(rightPartition)
 
-        return startNode
+        return startNode.parent
+
+    def test_traverseToString(self):
+        startNode = self.setup()
+        stringList = []
+        startNode.traverseToString(stringList)
+        assert len(stringList) == 3
+        assert stringList[0].__contains__("Almond")
+        assert stringList[0].__contains__("111")
+        assert stringList[0].__contains__("1")
+
+        assert stringList[2].__contains__("Chloe")
+        assert stringList[2].__contains__("333")
+        assert stringList[2].__contains__("3")
+
 
     def test_find(self):
         """
         Find and returns the parition with the requested key 
         or None if no parition with that key exists
         """
+        # setup a basic tree structure with the nodes
         startNode = self.setup()
-        result = startNode.find("Chloe")
 
-        print("hi")
+        # find Chloe which we know is in the tree
+        result = startNode.find("Chloe")
+        assert result.key == "Chloe"
+
+        # Tomoyo is known to NOT be in the tree confirm None is returned
+        result = startNode.find("Tomoyo")
+        assert result == None
 
 
     def test_insert_fullTreeCopiesChildren(self):
@@ -200,7 +217,7 @@ class BtreeNodeTest(unittest.TestCase):
         assert firstRoot.partitionList[1].key == "Effy"
 
         firstRoot.insert(Partition("Twili", 3))
-        # a new root has been found kinged
+        # a new root has been found
         newRoot = firstRoot.parent
         assert newRoot.partitionList[0].key == "Effy"
         assert newRoot.children[0].partitionList[0].key == "Bernie"
@@ -217,6 +234,12 @@ class BtreeNodeTest(unittest.TestCase):
         # check out new child
         assert newRoot.children[2].partitionList[0].key == "Zecora"
 
+        # Quick test of find with a bigger tree
+        result = newRoot.find("Usui")
+        assert result.key == "Usui"
+
+        result = newRoot.find("Twili")
+        assert result.key == "Twili"
 
     def test_insert_incomingIsMedian(self):
         """

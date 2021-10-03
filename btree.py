@@ -1,6 +1,5 @@
 from collections.abc import MutableMapping
 
-
 from btreeNode import BtreeNode
 from btreeNode import Partition
 import operator # Used to handle traverse filtering
@@ -26,9 +25,9 @@ class Btree(MutableMapping):
         self.update(data)
 
     def __getitem__(self, key):
-        keyList = self.traverse() # obtain a list of keys
-        if(key in keyList):
-            return (keyList[key-1]) # subtract 1 to account for list indices starting at 0
+        findResult = self.__root.find(key) 
+        if(findResult != None):
+            return [findResult.value1, findResult.value2]
         else:
             raise Exception("There is no element at spot: " + key)
 
@@ -38,11 +37,8 @@ class Btree(MutableMapping):
     def __setitem__(self, key, value):
         """
         description
-            Traverses all nodes within the tree 
         parameters
-            valueFilter(optional) - filter values of the list
         return 
-            keyList - list of all keys in order within the 
         """
         if not self.__root:
             # Currently no root node? Create one
@@ -61,9 +57,17 @@ class Btree(MutableMapping):
         """
         External iterator for searching through the BTree 
         """
-        whoDeservesBetter = ['cat', 'noir']
-        for who in whoDeservesBetter:
-            yield who
+        currentNode = self.__root
+
+        for item in self.yieldNext(currentNode):
+            yield item
+
+    def yieldNext(self, currentNode):
+        for index in range(0, 3): # Traverse all 3 possibilities for children
+            if len(currentNode.children) > index:
+                yield from self.yieldNext(currentNode.children[index]) # continue traversing down if child is found
+            if len(currentNode.partitionList) > index: # adding nodes keys to the list
+                yield currentNode.partitionList[index]
 
     def __len__(self):
         """
@@ -73,7 +77,9 @@ class Btree(MutableMapping):
         return self.__totalPartitions
 
     def __repr__(self):
-        return f"{type(self).__name__}({self.mapping})"
+        reprsentationString = []
+        self.__root.traverseToString(reprsentationString)
+        return reprsentationString
 #endregion
 
 # region Private BTree Functions

@@ -49,6 +49,27 @@ class BtreeNode:
 
         return keyList
 
+    def traverseToString(self, stringList):
+        """
+        description
+        param
+        return
+        """ 
+        for index in range(0, self.__order): # Traverse all 3 possibilities for children
+            if len(self.children) > index:
+                self.children[index].traverseToString(stringList) # continue traversing down if child is found
+            if len(self.partitionList) > index: # adding nodes keys to the list
+                paritionString = self.partitionToString(index)
+                stringList.append(paritionString)
+
+    def partitionToString(self, index):
+        """
+        Converts given partition to a string
+        """
+        partition = self.partitionList[index]
+
+        return str(partition.key) + ": " + str(partition.value1) + ", "+ str(partition.value2)
+
     def find(self, key):
         """
         description:
@@ -66,18 +87,22 @@ class BtreeNode:
         #     return foundPartition
         # else:
 
-        if(key == self.partitionList[0].key):
-            return self.partitionList[0]
-        if(key == self.partitionList[1].key):
-            return self.partitionList[1]
-
-
-        if(key > self.partitionList[1].key): # go right
-            return self.children[2].find(key)
-        elif(key > self.partitionList[0].key and key < self.partitionList[1]): # go down the middle
-            return self.children[1].find(key)
-        else:
-            return self.children[0].find(key)
+        # Find the first key greater than or equal to k
+        index = 0
+        while (index < len(self.partitionList) and key > self.partitionList[index].key):
+            index =+ 1
+ 
+        # If the found key is equal to k, return this partition
+        if (len(self.partitionList) > index and self.partitionList[index].key == key):
+            return self.partitionList[index]
+ 
+        # If the key is not found here and this is a leaf node
+        if (self.__isLeaf() == True):
+            return None
+ 
+        # Go to the appropriate child
+        return self.children[index].find(key)
+ 
 
     def partitionCheck(self, key):
         for partition in self.partitionList:

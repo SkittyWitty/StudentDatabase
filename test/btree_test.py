@@ -65,6 +65,32 @@ class BtreeTest(TestCase):
         with self.assertRaises(Exception):
             testBtree._Btree__generatePartition("Rena Rouge", "Illusion")
 
+    def test_externalIterator(self):
+        testBtree = Btree({
+            "Cat Noir" : ["Destruction", "Time"],
+            "Ladybug" : ["Creation", "Multiplication"],
+            "Rena Rouge" : ["Illusion", "Creation" ]
+        })
+
+        # Iterate through BTree and expect items in order
+        count = 0
+        for item in testBtree:
+            if(count == 0):
+                assert item.key == "Cat Noir"
+                assert item.value1 == "Destruction"
+                assert item.value2 == "Time"
+            elif(count == 1):
+                assert item.key == "Ladybug"
+                assert item.value1 == "Creation"
+                assert item.value2 == "Multiplication"
+            elif(count == 2):
+                assert item.key == "Rena Rouge"
+                assert item.value1 == "Illusion"
+                assert item.value2 == "Creation"
+            count = count + 1
+
+        # Check that we went through all test cases    
+        assert count == 3
 
     def test_setItem(self):
         """

@@ -38,7 +38,7 @@ class StudentClassTests(unittest.TestCase):
         # Check that red ID increases in the order they were added
         gpa, redId = studentDatabase.database["Min-slice"]
         assert(redId == 5)
-        pass
+
 
     def test_printPerfectGradeStudents(self):
         """
