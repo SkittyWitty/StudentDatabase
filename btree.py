@@ -27,7 +27,7 @@ class Btree(MutableMapping):
     def __getitem__(self, key):
         findResult = self.__root.find(key) 
         if(findResult != None):
-            return [findResult.value1, findResult.value2]
+            return findResult.value1, findResult.value2
         else:
             raise Exception("There is no element at spot: " + key)
 
@@ -60,7 +60,7 @@ class Btree(MutableMapping):
         currentNode = self.__root
 
         for item in self.yieldNext(currentNode):
-            yield item
+            yield item.key
 
     def yieldNext(self, currentNode):
         for index in range(0, 3): # Traverse all 3 possibilities for children

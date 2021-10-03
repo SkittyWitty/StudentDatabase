@@ -2,7 +2,7 @@ import os
 import sys
 import inspect
 
-from btreeNode import BtreeNode
+from btreeNode import BtreeNode, Partition
 
 # Obtain system path to btree files to import Btree Objects
 currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
@@ -43,9 +43,9 @@ class BtreeTest(TestCase):
             "Rena Rouge" : ["Illusion", "Creation" ]
         })
         assert testBtree._Btree__root != None
-        assert testBtree.get("Cat Noir") == ["Destruction", "Time"]
-        assert testBtree.get("Ladybug") == ["Creation", "Multiplication"]
-        assert testBtree.get("Rena Rouge") == ["Illusion", "Creation" ]
+        assert testBtree.get("Cat Noir") == ("Destruction", "Time")
+        assert testBtree.get("Ladybug") == ("Creation", "Multiplication")
+        assert testBtree.get("Rena Rouge") == ("Illusion", "Creation")
 
     def test_generatePartition(self):
         """
@@ -65,6 +65,32 @@ class BtreeTest(TestCase):
         with self.assertRaises(Exception):
             testBtree._Btree__generatePartition("Rena Rouge", "Illusion")
 
+    def test_toArray(self):
+        testBtree = Btree({
+            "Cat Noir" : ["Destruction", "Time"],
+            "Ladybug" : ["Creation", "Multiplication"],
+            "Rena Rouge" : ["Illusion", "Creation" ]
+        })
+
+        count = 0
+        for item in testBtree.items():
+            if(count == 0):
+                assert item[0] == "Cat Noir"
+                assert item[1][0] == "Destruction"
+                assert item[1][1] == "Time"
+            elif(count == 1):
+                assert item[0] == "Ladybug"
+                assert item[1][0] == "Creation"
+                assert item[1][1] == "Multiplication"
+            elif(count == 2):
+                assert item[0] == "Rena Rouge"
+                assert item[1][0] == "Illusion"
+                assert item[1][1] == "Creation"
+            count = count + 1
+
+        # Check that we went through all test cases    
+        assert count == 3
+
     def test_externalIterator(self):
         testBtree = Btree({
             "Cat Noir" : ["Destruction", "Time"],
@@ -76,17 +102,11 @@ class BtreeTest(TestCase):
         count = 0
         for item in testBtree:
             if(count == 0):
-                assert item.key == "Cat Noir"
-                assert item.value1 == "Destruction"
-                assert item.value2 == "Time"
+                assert item == "Cat Noir"
             elif(count == 1):
-                assert item.key == "Ladybug"
-                assert item.value1 == "Creation"
-                assert item.value2 == "Multiplication"
+                assert item == "Ladybug"
             elif(count == 2):
-                assert item.key == "Rena Rouge"
-                assert item.value1 == "Illusion"
-                assert item.value2 == "Creation"
+                assert item == "Rena Rouge"
             count = count + 1
 
         # Check that we went through all test cases    
