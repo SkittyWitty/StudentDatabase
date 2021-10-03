@@ -59,15 +59,27 @@ class Btree(MutableMapping):
         """
         currentNode = self.__root
 
-        for item in self.yieldNext(currentNode):
+        for item in self.__yieldNext(currentNode):
             yield item.key
 
-    def yieldNext(self, currentNode):
+    def __yieldNext(self, currentNode):
         for index in range(0, 3): # Traverse all 3 possibilities for children
             if len(currentNode.children) > index:
-                yield from self.yieldNext(currentNode.children[index]) # continue traversing down if child is found
+                yield from self.__yieldNext(currentNode.children[index]) # continue traversing down if child is found
             if len(currentNode.partitionList) > index: # adding nodes keys to the list
                 yield currentNode.partitionList[index]
+
+    def getReverse(self):
+        reverseList = []
+        self.reverse(self.__root, reverseList)  
+        return reverseList
+
+    def reverse(self, currentNode, reverseList):
+        for index in range(2, -1, -1): # Traverse all 3 possibilities for children
+            if len(currentNode.partitionList) > index: # adding nodes keys to the list
+                reverseList.append(currentNode.partitionList[index])
+            if len(currentNode.children) > index:
+                self.reverse(currentNode.children[index], reverseList) # continue traversing down if child is found
 
     def __len__(self):
         """

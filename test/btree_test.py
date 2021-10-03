@@ -65,6 +65,15 @@ class BtreeTest(TestCase):
         with self.assertRaises(Exception):
             testBtree._Btree__generatePartition("Rena Rouge", "Illusion")
 
+    def test_reverseInternalIterator(self):
+        testBtree = Btree({
+            "Cat Noir" : ["Destruction", "Time"],
+            "Ladybug" : ["Creation", "Multiplication"],
+            "Rena Rouge" : ["Illusion", "Creation" ]
+        })
+
+        testBtree.getReverse()
+
     def test_toArray(self):
         testBtree = Btree({
             "Cat Noir" : ["Destruction", "Time"],
