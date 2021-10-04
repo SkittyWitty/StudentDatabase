@@ -1,15 +1,21 @@
 from btree import Btree
-from collections import namedtuple
+import orderingStrategy
 
 class StudentDatabase:
     """
     Interface for the user to store and access information about students.
     """
-    def __init__(self):
-        self.database = Btree()
+    def __init__(self, orderingStrategy=orderingStrategy.orderByName):
+        # Initially empty database where all student information will be kept
+        self.database = Btree((), orderingStrategy)
         
-        # where redId assignments will begin
+        # Where redId assignments will begin
         self.__lastRedId = 0
+
+        # Index markers for pulling data from retrieved items
+        self.__gpaIndex = 0
+        self.__redIdIndex = 1
+        self.__valueListIndex = 1
 
     def addNewStudent(self, name, gpa):
         """
@@ -36,10 +42,8 @@ class StudentDatabase:
         return 
             None
         """
-        probationaryRange = 2.85 # defined GPA range of students who are on probation
-        operation = '<' # less than
-        studentsOnProbrationList = self.database.traverse(operation, probationaryRange)
-        print(studentsOnProbrationList) # printing list
+        studentsOnProbrationList = dict(filter(lambda item: item[self.__valueListIndex][self.__gpaIndex] < 2.85, self.database.items()))
+        print(studentsOnProbrationList)
 
     def printPerfectGradeStudents(self):
         """
@@ -52,10 +56,8 @@ class StudentDatabase:
         return 
             None
         """
-        perfectGpa = 4.0 # defined as the perfect GPA
-        requestedOperation = '=='
-        studentsWithPerfectGpaList = self.database.traverse(requestedOperation, perfectGpa)
-        print(studentsWithPerfectGpaList[::-1]) # reversing list to print from back to front
+        studentsWithPerfectGpaList = dict(filter(lambda item: item[self.__valueListIndex][self.__gpaIndex] == 4.0, self.database.items()))
+        print(studentsWithPerfectGpaList)
     
     def retrieveStudentAtIndex(self, position):
         """

@@ -1,10 +1,7 @@
 from collections.abc import MutableMapping
-
 from btreeNode import BtreeNode
 from btreeNode import orderByKey
 from btreeNode import Partition
-import operator # Used to handle traverse filtering
-
 
 class Btree(MutableMapping):
 # region Common dictionary interface
@@ -112,7 +109,7 @@ class Btree(MutableMapping):
 
 #end region 
 
-# region - added functionaility for assignment
+# region public functionaility added for the assignment
     def getReverse(self):
         """
         An internal iterator that will return a reverse list of partitions within the Btree
@@ -120,45 +117,6 @@ class Btree(MutableMapping):
         reverseList = []
         self.__reverse(self.__root, reverseList)  
         return reverseList
-
-    # Internal traverse
-    def traverse(self, requestedOperator='==', valuefilter=None): 
-        """
-        description
-            Internal Iterator that intakes a search strategy 
-            Traverses all nodes within the tree adding there keys, in order, to a list.
-        parameters
-            valueFilter(optional)        - filter values of the list
-            requestedOperator (optional) - operation that should be performed with filter value while traversing
-        return 
-            keyList - list of all keys in order within the 
-        """
-        operatorFilter = self.__getFilterOperator(requestedOperator)
-
-        keyList = []
-        if(self.__root != self.__root.isEmpty()): # check if there is a root node with keys to print
-            self.__root.traverse(keyList, operatorFilter, valuefilter) # traverse the nodes starting at the root
-        
-        return keyList 
-
-    def __getFilterOperator(comparator, selectedOperation):
-        """
-        description
-            Mapping of all filter operations.
-            # TODO: figure out this function can be added to operator class itself to keep things OO
-        params
-            comparator - what incoming value will be compared to
-            seletedOperation - what operation will be used to do the comparing
-        return 
-            a function that will filter based on user given specifications
-        """
-        operations = {'>': operator.gt,
-            '<': operator.lt,
-            '>=': operator.ge,
-            '<=': operator.le,
-            '==': operator.eq}
-
-        return operations[selectedOperation]
 #end region
 
 

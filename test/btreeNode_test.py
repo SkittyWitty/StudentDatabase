@@ -10,6 +10,7 @@ sys.path.insert(0, parentdir)
 from btree import Btree
 from btree import BtreeNode
 from btree import Partition
+from orderingStrategy import orderByGpa
 import unittest
 
 """
@@ -324,6 +325,39 @@ class BtreeNodeTest(unittest.TestCase):
         # Check that Rarity has Applejack as left child Yuna as right child
         assert startNode.parent.children[0].partitionList[0].key == leftKey # To the right is Maverik
         assert startNode.parent.children[1].partitionList[0].key == rightKey # To the right is Maverik
+
+    def test_orderbyGpaStrategy(self):
+        """
+        Provide a new ordering strategy
+        """
+        startNode = BtreeNode(True, orderByGpa) # future left node starts off as the root node
+        startNode.insert(Partition("Jay-Z", 3.8, 1))
+        startNode.insert(Partition("Tupac", 3.3, 2))
+        startNode.insert(Partition("Nas", 2.5, 3))
+
+        # Root node has changed after insertions
+        startNode = startNode.parent
+        assert startNode.isRoot == True
+
+        startNode.insert(Partition("Dr.Dre", 2.3, 4))
+        startNode.insert(Partition("B.I.G", 3.0, 5))
+        startNode.insert(Partition("Min-Slice", 4.0, 6))
+
+        # Check that the nodes are ordered by GPA
+        rootPartitions = startNode.partitionList
+        assert rootPartitions[0].key == "Nas"
+        assert rootPartitions[1].key == "Tupac"
+
+        leftChildPartitions = startNode.children[0].partitionList
+        assert leftChildPartitions[0].key == "Dr.Dre"
+
+        middleChildPartitions = startNode.children[1].partitionList
+        assert middleChildPartitions[0].key == "B.I.G"
+
+        rightChildPartitions = startNode.children[2].partitionList
+        assert rightChildPartitions[0].key == "Jay-Z"
+        assert rightChildPartitions[1].key == "Min-Slice"
+
 
     def test_isEmpty(self):
         """

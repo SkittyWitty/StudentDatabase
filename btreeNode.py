@@ -1,7 +1,6 @@
 
 from collections import namedtuple
 
-
 Partition = namedtuple('Partition', ['key', 'value1', 'value2'], defaults=[0, None, None])
 
 def orderByKey(incomingPartition, currentPartition):
@@ -35,27 +34,7 @@ class BtreeNode:
         # Default ordering strategy is to order by key
         self.orderingStrategy = orderingStrategy
 
-    def traverse(self, keyList, operatorFilter, filter=None):
-        """
-        description:
-            Visit each child and partition in the node 
-            adding each key visited to a list
-        param:
-            keyList -   list of all keys that will be added to
-                        each recursive call
-        return
-            keyList (see params)
-        """ 
-        for index in range(0, self.__order): # Traverse all 3 possibilities for children
-            if len(self.children) > index:
-                self.children[index].traverse(keyList, operatorFilter, filter) # continue traversing down if child is found
-            if len(self.partitionList) > index: # adding nodes keys to the list
-                if filter != None and operatorFilter(self.partitionList[index].value1, filter): # Optional filter
-                    keyList.append(self.partitionList[index].key)
-                elif filter == None: # Otherwise add all keys to the list
-                    keyList.append(self.partitionList[index].key)
 
-        return keyList
 
     def traverseToString(self, stringList):
         """

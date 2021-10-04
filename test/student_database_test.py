@@ -46,24 +46,26 @@ class StudentClassTests(unittest.TestCase):
         Checks that requested operation is =
            - Assumed that there is nothing above a 4.0 at SDSU
         """
-        # Use a dictionary as a makeshift database data structure for testing
         studentDatabase = StudentDatabase()
-        studentDatabase.database = dict()
+        studentDatabase.addNewStudent("Tupac", 4.0)
+        studentDatabase.addNewStudent("Naz", 2.0)
+        studentDatabase.addNewStudent("Vinny", 2.0)
+        studentDatabase.addNewStudent("Min-slice", 4.0)
 
         # Use mock to mock the traverse that returns a filtered list
-        #testStudentDatabase.printPerfectGradeStudents()
-        
-
+        studentDatabase.printPerfectGradeStudents()
 
     def test_printProbationaryStudents(self):
 
-        # Use a dictionary as a makeshift database data structure for testing
         studentDatabase = StudentDatabase()
-        studentDatabase.database = dict()
+        studentDatabase.addNewStudent("Tupac", 4.0)
+        studentDatabase.addNewStudent("Naz", 2.0)
+        studentDatabase.addNewStudent("Vinny", 2.0)
+        studentDatabase.addNewStudent("Min-slice", 4.0)
 
         # Use mock to mock the traverse that returns a filtered list
-        #testStudentDatabase.printProbationaryStudents()
-        
+        studentDatabase.printProbationaryStudents()
+
     def test_retrieveStudentAtIndex(self):
         # Use a dictionary as a makeshift database data structure for testing
         studentDatabase = StudentDatabase()

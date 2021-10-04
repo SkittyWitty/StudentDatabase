@@ -3,11 +3,11 @@
  Defintion
 """
 
-from btree import Partition
+def orderByGpa(incomingPartition, currentPartition):
+    return incomingPartition.value1 < currentPartition.value1
+
+def orderbyRedID(incomingPartition, currentPartition):
+    return incomingPartition.value2 < currentPartition.value2
 
 def orderByName(incomingPartition, currentPartition):
-    return incomingPartition.value1 < currentPartition.value2
-    
-
-def orderByGpa(incomingPartition, currentPartition):
-    return incomingPartition.value2 < currentPartition.value2
+    return incomingPartition.key < currentPartition.key

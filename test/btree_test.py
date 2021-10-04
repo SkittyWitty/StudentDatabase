@@ -2,8 +2,6 @@ import os
 import sys
 import inspect
 
-from btreeNode import BtreeNode, Partition
-
 # Obtain system path to btree files to import Btree Objects
 currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 parentdir = os.path.dirname(currentdir)
@@ -82,19 +80,19 @@ class BtreeTest(TestCase):
         })
 
         count = 0
-        for item in testBtree.items():
+        for key, values in testBtree.items():
             if(count == 0):
-                assert item[0] == "Cat Noir"
-                assert item[1][0] == "Destruction"
-                assert item[1][1] == "Time"
+                assert key == "Cat Noir"
+                assert values[0]== "Destruction"
+                assert values[1] == "Time"
             elif(count == 1):
-                assert item[0] == "Ladybug"
-                assert item[1][0] == "Creation"
-                assert item[1][1] == "Multiplication"
+                assert key == "Ladybug"
+                assert values[0] == "Creation"
+                assert values[1] == "Multiplication"
             elif(count == 2):
-                assert item[0] == "Rena Rouge"
-                assert item[1][0] == "Illusion"
-                assert item[1][1] == "Creation"
+                assert key == "Rena Rouge"
+                assert values[0] == "Illusion"
+                assert values[1] == "Creation"
             count = count + 1
 
         # Check that we went through all test cases    
