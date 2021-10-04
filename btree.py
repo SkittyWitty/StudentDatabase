@@ -21,6 +21,8 @@ class Btree(MutableMapping):
         self.__totalPartitions = 0 # keeps track of the length of the BTree
         self.__root = None # entry point into the btree
         self.__orderingStrategy = orderingStrategy
+        self.__order = 3 # specifies max number of children per node 
+
         self.update(data)
 
     def __getitem__(self, key):
@@ -69,9 +71,9 @@ class Btree(MutableMapping):
         return self.__totalPartitions
 
     def __repr__(self):
-        reprsentationString = []
-        self.__root.traverseToString(reprsentationString)
-        return reprsentationString
+        representationString = []
+        self.__toString(self.__root, representationString)
+        return representationString
 #endregion
 
 # region Private BTree Functions
@@ -94,7 +96,7 @@ class Btree(MutableMapping):
         """
         Yield's as the Btree is traverse in-order
         """
-        for index in range(0, 3): # Traverse all 3 possibilities for children
+        for index in range(0, self.__order): # Traverse all 3 possibilities for children
             if len(currentNode.children) > index:
                 yield from self.__yieldNext(currentNode.children[index]) # "yield from" will await what is yielded from the next function call
             if len(currentNode.partitionList) > index: 
@@ -107,6 +109,18 @@ class Btree(MutableMapping):
             if len(currentNode.children) > index:
                 self.__reverse(currentNode.children[index], reverseList) # continue traversing down if child is found
 
+    def __toString(self, currentNode, stringList):
+        """
+        description
+        param
+        return
+        """ 
+        for index in range(0, self.__order): # Traverse all 3 possibilities for children
+            if len(currentNode.children) > index:
+                self.__toString(currentNode.children[index], stringList) # continue traversing down if child is found
+            if len(currentNode.partitionList) > index: # adding nodes keys to the list
+                paritionString = currentNode.partitionToString(index)
+                stringList.append(paritionString)
 #end region 
 
 # region public functionaility added for the assignment

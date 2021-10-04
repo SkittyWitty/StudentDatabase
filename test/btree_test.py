@@ -63,6 +63,23 @@ class BtreeTest(TestCase):
         with self.assertRaises(Exception):
             testBtree._Btree__generatePartition("Rena Rouge", "Illusion")
 
+    def test_toString(self):
+        testBtree = Btree({
+            "Cat Noir" : ["Destruction", "Time"],
+            "Ladybug" : ["Creation", "Multiplication"],
+            "Rena Rouge" : ["Illusion", "Creation" ]
+        })
+        stringList = []
+        testBtree._Btree__toString(testBtree._Btree__root, stringList)
+        assert len(stringList) == 3
+        assert stringList[0].__contains__("Cat Noir")
+        assert stringList[0].__contains__("Destruction")
+        assert stringList[0].__contains__("Time")
+
+        assert stringList[1].__contains__("Ladybug")
+        assert stringList[1].__contains__("Creation")
+        assert stringList[1].__contains__("Multiplication")
+
     def test_reverseInternalIterator(self):
         testBtree = Btree({
             "Cat Noir" : ["Destruction", "Time"],

@@ -172,20 +172,6 @@ class BtreeNodeTest(unittest.TestCase):
 
         return startNode.parent
 
-    def test_traverseToString(self):
-        startNode = self.setup()
-        stringList = []
-        startNode.traverseToString(stringList)
-        assert len(stringList) == 3
-        assert stringList[0].__contains__("Almond")
-        assert stringList[0].__contains__("111")
-        assert stringList[0].__contains__("1")
-
-        assert stringList[2].__contains__("Chloe")
-        assert stringList[2].__contains__("333")
-        assert stringList[2].__contains__("3")
-
-
     def test_find(self):
         """
         Find and returns the parition with the requested key 

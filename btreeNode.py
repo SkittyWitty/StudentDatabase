@@ -6,7 +6,7 @@ Partition = namedtuple('Partition', ['key', 'value1', 'value2'], defaults=[0, No
 def orderByKey(incomingPartition, currentPartition):
     return incomingPartition.key < currentPartition.key
 
-class BtreeNode:
+class BtreeNode():
     """
     Node in a B-tree of order 3. 
     Meaning that (order - 1) = 2 data items will be allowed in the node.
@@ -33,21 +33,6 @@ class BtreeNode:
 
         # Default ordering strategy is to order by key
         self.orderingStrategy = orderingStrategy
-
-
-
-    def traverseToString(self, stringList):
-        """
-        description
-        param
-        return
-        """ 
-        for index in range(0, self.__order): # Traverse all 3 possibilities for children
-            if len(self.children) > index:
-                self.children[index].traverseToString(stringList) # continue traversing down if child is found
-            if len(self.partitionList) > index: # adding nodes keys to the list
-                paritionString = self.partitionToString(index)
-                stringList.append(paritionString)
 
     def partitionToString(self, index):
         """
@@ -83,7 +68,6 @@ class BtreeNode:
         # Go to the appropriate child
         return self.children[index].find(key)
  
-
     def isEmpty(self):
         """
         description
@@ -133,10 +117,6 @@ class BtreeNode:
             possible recursion to walk down the children 
             nodes to find a place to insert itself 
         """
-        # Handle case for 
-        if(len(self.partitionList) == 0):
-            return 0
-
         # If an index is not found assume it is last in the order 
         index = len(self.partitionList)
 
