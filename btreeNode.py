@@ -178,12 +178,21 @@ class BtreeNode(Node):
     def migrate(self, newParentNode, partitions, children):
         newParentNode.partitionList = partitions
 
-        for index, child in enumerate(children):
+        for index in range(0, self.__order):
             if(type is BtreeNode):
+                child = children[index]
                 child.parent = newParentNode
                 newParentNode.children[index] = child
             else:
                 newParentNode.children[index] = NullNode()
+
+    def meh(self, indexOfNewChild, newRightChild):
+        currentChild = self.parent.children[indexOfNewChild]
+        if(type(currentChild) != NullNode):
+            self.parent.children[indexOfNewChild+1] = currentChild
+            self.parent.children[indexOfNewChild] = newRightChild
+        else:
+            self.parent.children[indexOfNewChild] = newRightChild
 
     def __splitNode(self):
         """
@@ -218,8 +227,9 @@ class BtreeNode(Node):
                 if child == self:
                     indexOfNewChild = i + 1
                     break
-
-            self.parent.children[indexOfNewChild] = newRightChild
+            
+            self.meh(indexOfNewChild, newRightChild)
+            print("hi")
         else: # parent does not have children 
             self.parent.children = [self, newRightChild, NullNode()] # parent adopts current node and newly created right node
   
