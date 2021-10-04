@@ -2,6 +2,8 @@ import os
 import sys
 import inspect
 
+from btreeNullNode import NullNode
+
 # Obtain system path to btree files to import Btree Objects
 currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 parentdir = os.path.dirname(currentdir)
@@ -56,7 +58,10 @@ class BtreeNodeTest(unittest.TestCase):
         testNode = BtreeNode(True)
         testNode.insert(testPartition)
 
-        assert testNode.children == []
+        assert type(testNode.children[0]) == NullNode
+        assert type(testNode.children[1]) == NullNode
+        assert type(testNode.children[2]) == NullNode
+
         assert testNode.parent == None
         assert testNode.partitionList[0] == testPartition
         assert testNode._BtreeNode__order == 3
@@ -324,9 +329,19 @@ class BtreeNodeTest(unittest.TestCase):
         # Root node has changed after insertions
         startNode = startNode.parent
         assert startNode.isRoot == True
+        assert startNode.children[0].partitionList[0].key == "Nas"
+        assert startNode.children[1].partitionList[0].key == "Jay-Z"
 
         startNode.insert(Partition("Dr.Dre", 2.3, 4))
+        assert startNode.children[0].partitionList[0].key == "Dr.Dre"
+        assert startNode.children[1].partitionList[0].key == "Jay-Z"
+
+
         startNode.insert(Partition("B.I.G", 3.0, 5))
+        assert startNode.children[1].partitionList[0].key == "B.I.G"
+        assert startNode.children[2].partitionList[0].key == "Jay-Z"
+
+
         startNode.insert(Partition("Min-Slice", 4.0, 6))
 
         # Check that the nodes are ordered by GPA

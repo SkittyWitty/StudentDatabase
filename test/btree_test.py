@@ -69,8 +69,7 @@ class BtreeTest(TestCase):
             "Ladybug" : ["Creation", "Multiplication"],
             "Rena Rouge" : ["Illusion", "Creation" ]
         })
-        stringList = []
-        testBtree._Btree__toString(testBtree._Btree__root, stringList)
+        stringList = testBtree._Btree__toString()
         assert len(stringList) == 3
         assert stringList[0].__contains__("Cat Noir")
         assert stringList[0].__contains__("Destruction")
@@ -87,7 +86,17 @@ class BtreeTest(TestCase):
             "Rena Rouge" : ["Illusion", "Creation" ]
         })
 
-        testBtree.getReverse()
+        reverseList = testBtree.getReverse()
+        # Cat Noir is expected to be last in the list
+        assert reverseList[2].__contains__("Cat Noir")
+        assert reverseList[2].__contains__("Destruction")
+        assert reverseList[2].__contains__("Time")
+
+        # Rena Rouge is expected to be first in the list
+        assert reverseList[0].__contains__("Rena Rouge")
+        assert reverseList[0].__contains__("Illusion")
+        assert reverseList[0].__contains__("Creation")
+
 
     def test_toArray(self):
         testBtree = Btree({
@@ -135,112 +144,6 @@ class BtreeTest(TestCase):
 
         # Check that we went through all test cases    
         assert count == 3
-
-    def test_setItem(self):
-        """
-        Testing BTree's implementation of the mutableMappings 
-        __setitem__
-        """
-        # testBtree = Btree()
-        # # Creates new root node if one does not exist
-        # testBtree._Btree__root.insert = MagicMock(return_value=3)
-        # testBtree.__setitem__("key", "value")
-
-        # testBtree._Btree__root.insert.assert_called_with("key", "value")
-        # print("meh")
-
-        # if not self.__root:
-        #     # Currently no root node? Create one
-        #     self.__root = BtreeNode(True)
-        
-        # partition = self.__generatePartition(key, value)
-        # self.__root.insert(partition) # insertion begins at the top of the tree allow Btree Node to sort
-
-        # if not self.__root.isRoot: # root might have changed
-        #     self.__root = self.__root.parent
-
-        # # Partition has been added keep track of the length 
-        # self.__totalPartitions = self.__totalPartitions + 1
 # endregion      
-
-
-# region traversing tests
-    # def test_insert_empty(self):
-    #     """
-    #     When the BTree is empty a root node is created and 
-    #     populated with the given partition
-    #     """
-    #     testBtree = Btree()
-
-    #     # Set up a partition to insert
-    #     testKey = "Plagg"
-    #     testValue = 11
-    #     testPartition = Partition(testKey, testValue)
-        
-    #     # Call
-    #     testBtree.insert(testPartition)
-
-    #     # Assert
-    #     assert testBtree._Btree__root != None
-    #     assert testBtree._Btree__root.keyValuePairs[0].getKey() == testKey
-
-    # def test_traverse_basic(self):
-    #     testBtree = Btree()
-
-    #     # Set up a partition to insert
-    #     testKey = "Plagg"
-    #     testValue = 11
-    #     testPartition = Partition(testKey, testValue)
-        
-    #     # Call
-    #     testBtree.insert(testPartition)
-    #     myList = testBtree.traverse()
-    #     assert myList == ["Plagg"]
-    
-    # def test_traverse_twoTierTree(self):
-    #     # Set-up
-    #     # Creating what should be the left child
-    #     testBtree = Btree()
-
-    #     leftKey = "Applejack"
-    #     leftValue = 222
-    #     leftPartition = Partition(leftKey, leftValue)
-
-    #     # Creating what should be the middle node
-    #     medianKey = "Rarity"
-    #     medianValue = 111
-    #     medianPartition = Partition(medianKey, medianValue)
-
-    #     # Creating what should be the right child
-    #     rightKey = "Yuna"
-    #     rightValue = 333
-    #     rightPartition = Partition(rightKey, rightValue)
-
-    #     # Call
-    #     testBtree.insert(leftPartition)
-    #     testBtree.insert(medianPartition)
-    #     testBtree.insert(rightPartition)
-    #     testListOfKeys = testBtree.traverse() 
-    #     assert testListOfKeys == [leftKey, medianKey, rightKey]
-
-
-    # def test_traverse_thirdNodeAppearance(self):
-    #     testBtree = Btree()
-    #     testBtree.insert(Partition("Effy", 2))
-    #     testBtree.insert(Partition("Bernie", 1))
-    #     testBtree.insert(Partition("Twili", 3))
-    #     testBtree.insert(Partition("Usui", 4))
-    #     testBtree.insert(Partition("Zecora", 5))
-    #     testBtree.insert(Partition("Catnoir", 45))
-
-    #     testListOfKeys = testBtree.traverse()
-
-    #     assert testListOfKeys == ["Bernie", "Catnoir", "Effy", "Twili", "Usui", "Zecora"]
-# endregion
-
-
-
-
-
 
 

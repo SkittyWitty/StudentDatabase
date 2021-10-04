@@ -58,9 +58,7 @@ class Btree(MutableMapping):
         """
         External iterator for searching through the BTree 
         """
-        currentNode = self.__root
-
-        for item in self.__yieldNext(currentNode):
+        for item in self.__root.yieldNext():
             yield item.key
 
     def __len__(self):
@@ -92,35 +90,15 @@ class Btree(MutableMapping):
 
         return newPartition
 
-    def __yieldNext(self, currentNode):
-        """
-        Yield's as the Btree is traverse in-order
-        """
-        for index in range(0, self.__order): # Traverse all 3 possibilities for children
-            if len(currentNode.children) > index:
-                yield from self.__yieldNext(currentNode.children[index]) # "yield from" will await what is yielded from the next function call
-            if len(currentNode.partitionList) > index: 
-                yield currentNode.partitionList[index] # yield returns the current partition
-
-    def __reverse(self, currentNode, reverseList):
-        for index in range(2, -1, -1): # Reverse begins looking at the last most child and partition
-            if len(currentNode.partitionList) > index:
-                reverseList.append(currentNode.partitionList[index]) # adding nodes keys to the list prior to searching for more
-            if len(currentNode.children) > index:
-                self.__reverse(currentNode.children[index], reverseList) # continue traversing down if child is found
-
-    def __toString(self, currentNode, stringList):
+    def __toString(self):
         """
         description
         param
         return
         """ 
-        for index in range(0, self.__order): # Traverse all 3 possibilities for children
-            if len(currentNode.children) > index:
-                self.__toString(currentNode.children[index], stringList) # continue traversing down if child is found
-            if len(currentNode.partitionList) > index: # adding nodes keys to the list
-                paritionString = currentNode.partitionToString(index)
-                stringList.append(paritionString)
+        stringList = []
+        self.__root.toString(stringList)
+        return stringList
 #end region 
 
 # region public functionaility added for the assignment
@@ -128,9 +106,9 @@ class Btree(MutableMapping):
         """
         An internal iterator that will return a reverse list of partitions within the Btree
         """
-        reverseList = []
-        self.__reverse(self.__root, reverseList)  
-        return reverseList
+        list = []
+        self.__root.reverseList(list)
+        return list
 #end region
 
 

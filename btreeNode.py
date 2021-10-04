@@ -1,12 +1,14 @@
 
 from collections import namedtuple
+from node import Node
+from btreeNullNode import NullNode
 
 Partition = namedtuple('Partition', ['key', 'value1', 'value2'], defaults=[0, None, None])
 
 def orderByKey(incomingPartition, currentPartition):
     return incomingPartition.key < currentPartition.key
 
-class BtreeNode():
+class BtreeNode(Node):
     """
     Node in a B-tree of order 3. 
     Meaning that (order - 1) = 2 data items will be allowed in the node.
@@ -24,7 +26,7 @@ class BtreeNode():
         self.__order = 3 # specifies max number of children per node 
         self.__maxKeys = self.__order - 1 # max number of key/value pairs per node
 
-        self.children = []
+        self.children = [NullNode(), NullNode(), NullNode()]
         self.parent = None
         
         self.partitionList = [] # also referred to as partitions of the node
@@ -83,6 +85,39 @@ class BtreeNode():
         else:
             return False
 
+    def toString(self, list):
+        for index, child in enumerate(self.children):
+            child.toString(list)
+            if len(self.partitionList) > index: # adding nodes keys to the list
+                list.append(self.partitionToString(index))
+
+    def yieldNext(self):
+        """
+        Yield's as the Btree is traverse in-order
+        """
+        for index, child in enumerate(self.children):
+            if type(child) != NullNode: # Null Nodes should not be visible to the user of the interface and therefore should not yield
+                yield from child.yieldNext()
+            if len(self.partitionList) > index: # adding nodes keys to the list
+                yield self.partitionList[index]
+
+
+    def __reverse(self, currentNode, reverseList):
+        for index in range(2, -1, -1): # Reverse begins looking at the last most child and partition
+            if len(currentNode.partitionList) > index:
+                reverseList.append(currentNode.partitionList[index]) # adding nodes keys to the list prior to searching for more
+            if len(currentNode.children) > index:
+                self.__reverse(currentNode.children[index], reverseList) # continue traversing down if child is found
+
+
+    def reverseList(self, list):
+        index = 2
+        for child in reversed(self.children):
+            if len(self.partitionList) > index: # adding nodes keys to the list
+                list.append(self.partitionToString(index))
+            child.reverseList(list)
+            index = index - 1
+
     def __isLeaf(self):
         """
         description
@@ -92,11 +127,11 @@ class BtreeNode():
         returns
             True when the node has no children
         """
-        if self.children == []:
-            return True
-        else:
-            return False
-    
+        isLeaf = True
+        for child in self.children:
+            isLeaf = isLeaf and child.isEmpty()
+        return isLeaf
+            
     def __createNewRoot(self):
         """
         Creates a new root node that will become the parent of the current Node.
@@ -140,6 +175,16 @@ class BtreeNode():
         """
         return self.__isLeaf() and len(self.partitionList) == self.__maxKeys
 
+    def migrate(self, newParentNode, partitions, children):
+        newParentNode.partitionList = partitions
+
+        for index, child in enumerate(children):
+            if(type is BtreeNode):
+                child.parent = newParentNode
+                newParentNode.children[index] = child
+            else:
+                newParentNode.children[index] = NullNode()
+
     def __splitNode(self):
         """
         definition 
@@ -160,27 +205,23 @@ class BtreeNode():
 
         # Everything on the right side of the median becomes 
         # the new right nodes children and partitionList
-        newRightChild.partitionList = self.partitionList[1:]
-        newRightChild.children = self.children[1:]
-        for child in newRightChild.children:
-            child.parent = newRightChild
+        self.migrate(newRightChild, self.partitionList[1:], self.children[1:])
 
         # Everything on the left side of the median becomes
         # current nodes new children and partitionList
-        self.partitionList = self.partitionList[:1]	
-        self.children = self.children[:1]
+        self.migrate(self, self.partitionList[:1], self.children[:1])
 
         # parent of current node has children ensure they are in the correct order
-        if self.parent.children:
+        if not self.parent.__isLeaf():
             indexOfNewChild = len(self.parent.partitionList)
             for i, child in enumerate(self.parent.children):
                 if child == self:
                     indexOfNewChild = i + 1
                     break
 
-            self.parent.children.insert(indexOfNewChild, newRightChild)
+            self.parent.children[indexOfNewChild] = newRightChild
         else: # parent does not have children 
-            self.parent.children = [self, newRightChild] # parent adopts current node and newly created right node
+            self.parent.children = [self, newRightChild, NullNode()] # parent adopts current node and newly created right node
   
     def __insertKeyValues(self, partition, index=None):
         """
@@ -199,7 +240,6 @@ class BtreeNode():
         else:
             if not index:
                 index = self.__findIndex(partition)
-
             self.partitionList.insert(index, partition)
 
     def insert(self, incomingPartition):

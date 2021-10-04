@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 
 class Node(ABC):
-    def __init__(self, isRoot, orderingStrategy):
+    def __init__(self):
         pass
     def partitionToString(self, index):
         pass
