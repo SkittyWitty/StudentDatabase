@@ -69,7 +69,7 @@ class BtreeTest(TestCase):
             "Ladybug" : ["Creation", "Multiplication"],
             "Rena Rouge" : ["Illusion", "Creation" ]
         })
-        stringList = testBtree._Btree__toString()
+        stringList = testBtree.toString()
         assert len(stringList) == 3
         assert stringList[0].__contains__("Cat Noir")
         assert stringList[0].__contains__("Destruction")

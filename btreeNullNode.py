@@ -5,6 +5,7 @@ from node import Node
 class NullNode(Node):
     def __init__(self):
         self.partitionList = []
+        self.children = []
     def partitionToString(self, index):
         return ""
     def find(self, key):

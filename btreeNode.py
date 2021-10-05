@@ -85,12 +85,6 @@ class BtreeNode(Node):
         else:
             return False
 
-    def toString(self, list):
-        for index, child in enumerate(self.children):
-            child.toString(list)
-            if len(self.partitionList) > index: # adding nodes keys to the list
-                list.append(self.partitionToString(index))
-
     def yieldNext(self):
         """
         Yield's as the Btree is traverse in-order
@@ -100,23 +94,6 @@ class BtreeNode(Node):
                 yield from child.yieldNext()
             if len(self.partitionList) > index: # adding nodes keys to the list
                 yield self.partitionList[index]
-
-
-    def __reverse(self, currentNode, reverseList):
-        for index in range(2, -1, -1): # Reverse begins looking at the last most child and partition
-            if len(currentNode.partitionList) > index:
-                reverseList.append(currentNode.partitionList[index]) # adding nodes keys to the list prior to searching for more
-            if len(currentNode.children) > index:
-                self.__reverse(currentNode.children[index], reverseList) # continue traversing down if child is found
-
-
-    def reverseList(self, list):
-        index = 2
-        for child in reversed(self.children):
-            if len(self.partitionList) > index: # adding nodes keys to the list
-                list.append(self.partitionToString(index))
-            child.reverseList(list)
-            index = index - 1
 
     def __isLeaf(self):
         """
