@@ -186,7 +186,13 @@ class BtreeNode(Node):
             else:
                 newParentNode.children[index] = NullNode()
 
-    def meh(self, indexOfNewChild, newRightChild):
+    def childFitting(self, newRightChild):
+        indexOfNewChild = len(self.parent.partitionList)
+        for i, child in enumerate(self.parent.children):
+            if child == self:
+                indexOfNewChild = i + 1
+                break
+            
         currentChild = self.parent.children[indexOfNewChild]
         if(type(currentChild) != NullNode):
             self.parent.children[indexOfNewChild+1] = currentChild
@@ -220,16 +226,8 @@ class BtreeNode(Node):
         # current nodes new children and partitionList
         self.migrate(self, self.partitionList[:1], self.children[:1])
 
-        # parent of current node has children ensure they are in the correct order
-        if not self.parent.__isLeaf():
-            indexOfNewChild = len(self.parent.partitionList)
-            for i, child in enumerate(self.parent.children):
-                if child == self:
-                    indexOfNewChild = i + 1
-                    break
-            
-            self.meh(indexOfNewChild, newRightChild)
-            print("hi")
+        if not self.parent.__isLeaf(): # parent of current node has children ensure they are placed in the correct order
+            self.childFitting(newRightChild)
         else: # parent does not have children 
             self.parent.children = [self, newRightChild, NullNode()] # parent adopts current node and newly created right node
   

@@ -336,11 +336,9 @@ class BtreeNodeTest(unittest.TestCase):
         assert startNode.children[0].partitionList[0].key == "Dr.Dre"
         assert startNode.children[1].partitionList[0].key == "Jay-Z"
 
-
         startNode.insert(Partition("B.I.G", 3.0, 5))
         assert startNode.children[1].partitionList[0].key == "B.I.G"
         assert startNode.children[2].partitionList[0].key == "Jay-Z"
-
 
         startNode.insert(Partition("Min-Slice", 4.0, 6))
 
