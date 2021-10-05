@@ -3,33 +3,27 @@
 from node import Node
 
 class NullNode(Node):
+    """
+    Contains base functionaility that is mostly called when doing traverses.
+    Will end the search and return an empty value in a format that Btree or BtreeNode will know how to handle.
+    """
     def __init__(self):
+        # Null node does not have any paritions or children
         self.partitionList = []
         self.children = []
     def partitionToString(self, index):
         return ""
     def find(self, key):
+        # Your node is in another castle
         return None
     def isEmpty(self): 
-        # does it have partitions
+        # Will alawys be empty
         return True
     def toString(self, list):
+        # Pass will not have anything to contribute to the list
         pass
     def reverseList(self, list):
+        # Pass will not have anything to contribute to the list
         pass
     def yieldNext(self):
         return None
-    def __isLeaf(self):
-        pass
-    def __createNewRoot(self):
-        pass
-    def __findIndex(self, incomingPartition):
-        pass
-    def __isOverflowing(self):
-        pass
-    def __splitNode(self):
-        pass
-    def __insertKeyValues(self, partition, index=None):
-        pass
-    def insert(self, incomingPartition):
-        pass
