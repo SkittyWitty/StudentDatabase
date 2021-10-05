@@ -15,7 +15,7 @@ class StudentDatabase:
         # Index markers for pulling data from retrieved items
         self.__gpaIndex = 0
         self.__redIdIndex = 1
-        self.__valueListIndex = 1
+        self.__valueListIndex = 1 # index where the student data is located within a student item
 
     def addNewStudent(self, name, gpa):
         """
@@ -42,6 +42,7 @@ class StudentDatabase:
         return 
             None
         """
+        # Acquires all items using the databases built in item view, filters items using a function that checks if a student's GPA less than 2.85
         studentsOnProbrationList = dict(filter(lambda item: item[self.__valueListIndex][self.__gpaIndex] < 2.85, self.database.items()))
         print(studentsOnProbrationList)
 
@@ -51,11 +52,8 @@ class StudentDatabase:
             Prints out the names of students with a GPA of 4.0
             in the list from the back to the front of the list. 
             i.e Z-A
-        params
-            None
-        return 
-            None
         """
+        # Acquires all items using the databases built in item view,, filters items using a function that checks if a student's GPA is 4.0
         studentsWithPerfectGpaList = dict(filter(lambda item: item[self.__valueListIndex][self.__gpaIndex] == 4.0, self.database.items()))
         print(studentsWithPerfectGpaList)
     
@@ -70,7 +68,7 @@ class StudentDatabase:
             None
         """
         name, studentData = self.database.get(position)
-        gpa, redId = studentDatabase
+        gpa, redId = studentData
         print("Student RedID "  + redId)
         print("Student Name: "  + name)
         print("Studen GPA: "    + gpa)
@@ -81,5 +79,3 @@ if __name__ == '__main__':
     """
     studentDatabase = StudentDatabase()
     print("Student Database Created")
-
-    pass
